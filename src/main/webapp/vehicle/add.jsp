@@ -1,148 +1,111 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <jsp:include page="/includes/header.jsp">
-    <jsp:param name="title" value="Add Vehicle" />
+    <jsp:param name="title" value="Add New Vehicle" />
 </jsp:include>
 
-<div class="row">
-    <div class="col-md-12 mb-4">
-        <h2><i class="fas fa-plus-circle me-2"></i> Add New Vehicle</h2>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">Vehicle Information</h4>
-            </div>
-            <div class="card-body">
-                <form action="${pageContext.request.contextPath}/admin/vehicles/add" method="post">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="type" class="form-label required">Vehicle Type</label>
-                            <input type="text" class="form-control ${not empty typeError ? 'is-invalid' : ''}" 
-                                   id="type" name="type" value="${type}" required
-                                   placeholder="e.g., Sedan, SUV, Van">
-                            <c:if test="${not empty typeError}">
-                                <div class="invalid-feedback">
-                                    ${typeError}
-                                </div>
-                            </c:if>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-car me-2"></i> Add New Vehicle</h4>
+                </div>
+                <div class="card-body">
+                    <c:if test="${not empty errorMessage}">
+                        <div class="alert alert-danger" role="alert">
+                            ${errorMessage}
                         </div>
+                    </c:if>
+                    
+                    <form action="${pageContext.request.contextPath}/admin/vehicles/add" method="post" class="row g-3">
                         <div class="col-md-6">
-                            <label for="make" class="form-label required">Make</label>
+                            <label for="type" class="form-label">Vehicle Type*</label>
+                            <select id="type" name="type" class="form-select ${not empty typeError ? 'is-invalid' : ''}">
+                                <option value="" selected disabled>Select vehicle type</option>
+                                <option value="SEDAN" ${type == 'SEDAN' ? 'selected' : ''}>Sedan</option>
+                                <option value="SUV" ${type == 'SUV' ? 'selected' : ''}>SUV</option>
+                                <option value="TRUCK" ${type == 'TRUCK' ? 'selected' : ''}>Truck</option>
+                                <option value="VAN" ${type == 'VAN' ? 'selected' : ''}>Van</option>
+                                <option value="COUPE" ${type == 'COUPE' ? 'selected' : ''}>Coupe</option>
+                                <option value="MOTORCYCLE" ${type == 'MOTORCYCLE' ? 'selected' : ''}>Motorcycle</option>
+                            </select>
+                            <div class="invalid-feedback">${typeError}</div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="make" class="form-label">Make*</label>
                             <input type="text" class="form-control ${not empty makeError ? 'is-invalid' : ''}" 
-                                   id="make" name="make" value="${make}" required
-                                   placeholder="e.g., Toyota, Honda, Ford">
-                            <c:if test="${not empty makeError}">
-                                <div class="invalid-feedback">
-                                    ${makeError}
-                                </div>
-                            </c:if>
+                                   id="make" name="make" value="${make}" placeholder="e.g. Toyota, Honda">
+                            <div class="invalid-feedback">${makeError}</div>
                         </div>
-                    </div>
-                    
-                    <div class="row mb-3">
+                        
                         <div class="col-md-6">
-                            <label for="model" class="form-label required">Model</label>
+                            <label for="model" class="form-label">Model*</label>
                             <input type="text" class="form-control ${not empty modelError ? 'is-invalid' : ''}" 
-                                   id="model" name="model" value="${model}" required
-                                   placeholder="e.g., Camry, Civic, Explorer">
-                            <c:if test="${not empty modelError}">
-                                <div class="invalid-feedback">
-                                    ${modelError}
-                                </div>
-                            </c:if>
+                                   id="model" name="model" value="${model}" placeholder="e.g. Camry, Civic">
+                            <div class="invalid-feedback">${modelError}</div>
                         </div>
+                        
                         <div class="col-md-6">
-                            <label for="year" class="form-label required">Year</label>
+                            <label for="year" class="form-label">Year*</label>
                             <input type="number" class="form-control ${not empty yearError ? 'is-invalid' : ''}" 
-                                   id="year" name="year" value="${year}" required
-                                   min="1900" max="2100" placeholder="e.g., 2023">
-                            <c:if test="${not empty yearError}">
-                                <div class="invalid-feedback">
-                                    ${yearError}
-                                </div>
-                            </c:if>
+                                   id="year" name="year" value="${year}" min="1900" max="2100" placeholder="e.g. 2022">
+                            <div class="invalid-feedback">${yearError}</div>
                         </div>
-                    </div>
-                    
-                    <div class="row mb-3">
+                        
                         <div class="col-md-6">
-                            <label for="registrationNumber" class="form-label required">Registration Number</label>
+                            <label for="registrationNumber" class="form-label">Registration Number*</label>
                             <input type="text" class="form-control ${not empty registrationNumberError ? 'is-invalid' : ''}" 
-                                   id="registrationNumber" name="registrationNumber" value="${registrationNumber}" required
-                                   placeholder="e.g., ABC-123">
-                            <c:if test="${not empty registrationNumberError}">
-                                <div class="invalid-feedback">
-                                    ${registrationNumberError}
-                                </div>
-                            </c:if>
+                                   id="registrationNumber" name="registrationNumber" value="${registrationNumber}">
+                            <div class="invalid-feedback">${registrationNumberError}</div>
                         </div>
+                        
                         <div class="col-md-6">
-                            <label for="dailyRate" class="form-label required">Daily Rate ($)</label>
-                            <input type="number" class="form-control ${not empty dailyRateError ? 'is-invalid' : ''}" 
-                                   id="dailyRate" name="dailyRate" value="${dailyRate}" required step="0.01" min="0"
-                                   placeholder="e.g., 99.99">
-                            <c:if test="${not empty dailyRateError}">
-                                <div class="invalid-feedback">
-                                    ${dailyRateError}
-                                </div>
-                            </c:if>
+                            <label for="dailyRate" class="form-label">Daily Rate ($)*</label>
+                            <input type="number" step="0.01" class="form-control ${not empty dailyRateError ? 'is-invalid' : ''}" 
+                                   id="dailyRate" name="dailyRate" value="${dailyRate}" min="0">
+                            <div class="invalid-feedback">${dailyRateError}</div>
                         </div>
-                    </div>
-                    
-                    <div class="row mb-3">
+                        
                         <div class="col-md-6">
                             <label for="imageUrl" class="form-label">Image URL</label>
-                            <input type="url" class="form-control" 
-                                   id="imageUrl" name="imageUrl" value="${imageUrl}"
+                            <input type="url" class="form-control ${not empty imageUrlError ? 'is-invalid' : ''}" 
+                                   id="imageUrl" name="imageUrl" value="${imageUrl}" 
                                    placeholder="https://example.com/car-image.jpg">
-                            <div class="form-text">
-                                Provide a URL to an image of the vehicle (optional).
-                            </div>
+                            <div class="invalid-feedback">${imageUrlError}</div>
+                            <div class="form-text">Direct link to vehicle image (optional)</div>
                         </div>
+                        
                         <div class="col-md-6">
-                            <label class="form-label required">Availability</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" id="availableYes" 
-                                       name="available" value="true" ${available ? 'checked' : ''} checked>
-                                <label class="form-check-label" for="availableYes">
-                                    Available for Rental
-                                </label>
+                            <label class="form-label d-block">Availability</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="available" 
+                                       id="availableYes" value="true" ${empty available || available == 'true' ? 'checked' : ''}>
+                                <label class="form-check-label" for="availableYes">Available</label>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" id="availableNo" 
-                                       name="available" value="false" ${available == false ? 'checked' : ''}>
-                                <label class="form-check-label" for="availableNo">
-                                    Not Available for Rental
-                                </label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="available" 
+                                       id="availableNo" value="false" ${available == 'false' ? 'checked' : ''}>
+                                <label class="form-check-label" for="availableNo">Not Available</label>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="description" class="form-label required">Description</label>
-                        <textarea class="form-control ${not empty descriptionError ? 'is-invalid' : ''}" 
-                                  id="description" name="description" rows="5" required
-                                  placeholder="Enter a detailed description of the vehicle, including features and condition...">${description}</textarea>
-                        <c:if test="${not empty descriptionError}">
-                            <div class="invalid-feedback">
-                                ${descriptionError}
-                            </div>
-                        </c:if>
-                    </div>
-                    
-                    <div class="d-flex gap-2 mt-4">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i> Add Vehicle
-                        </button>
-                        <a href="${pageContext.request.contextPath}/vehicles" class="btn btn-secondary">
-                            <i class="fas fa-times me-2"></i> Cancel
-                        </a>
-                    </div>
-                </form>
+                        
+                        <div class="col-12">
+                            <label for="description" class="form-label">Description*</label>
+                            <textarea class="form-control ${not empty descriptionError ? 'is-invalid' : ''}" 
+                                      id="description" name="description" rows="4">${description}</textarea>
+                            <div class="invalid-feedback">${descriptionError}</div>
+                        </div>
+                        
+                        <div class="col-12 mt-4 d-flex justify-content-end">
+                            <a href="${pageContext.request.contextPath}/vehicles" class="btn btn-secondary me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Add Vehicle
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

@@ -34,10 +34,13 @@ public class AdminAuthenticationFilter implements Filter {
                            (Boolean) session.getAttribute("isAdmin"));
         
         String adminLoginURI = httpRequest.getContextPath() + "/admin/login";
+        String adminRegisterURI = httpRequest.getContextPath() + "/admin/register";
         boolean isAdminLoginRequest = httpRequest.getRequestURI().equals(adminLoginURI);
+        boolean isAdminRegisterRequest = httpRequest.getRequestURI().equals(adminRegisterURI);
         boolean isAdminLoginPage = httpRequest.getRequestURI().endsWith("admin/login.jsp");
+        boolean isAdminRegisterPage = httpRequest.getRequestURI().endsWith("admin/register.jsp");
         
-        if (isAdmin || isAdminLoginRequest || isAdminLoginPage) {
+        if (isAdmin || isAdminLoginRequest || isAdminLoginPage || isAdminRegisterRequest || isAdminRegisterPage) {
             // Admin is authenticated or accessing admin login page, proceed
             chain.doFilter(request, response);
         } else {
