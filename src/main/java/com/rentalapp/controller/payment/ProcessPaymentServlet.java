@@ -19,6 +19,7 @@ import javax.servlet.http.Part;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -216,12 +217,14 @@ public class ProcessPaymentServlet extends HttpServlet {
         Payment payment = new Payment();
         payment.setId(FileUtil.generateUniqueId());
         payment.setBookingId(bookingId);
+        payment.setUserId((String) session.getAttribute("userId"));
         payment.setAmount(amount);
-        payment.setPaymentDate(LocalDate.now());
+        payment.setPaymentDate(LocalDateTime.now());
         payment.setPaymentMethod(paymentMethodStr);
         payment.setStatus("PENDING");
-        payment.setTransactionId(transactionId);
-        payment.setPaymentSlipPath(paymentSlipPath);
+        // Use notes field for transaction ID
+        payment.setNotes("Transaction ID: " + transactionId);
+        payment.setSlipImagePath(paymentSlipPath);
         
         // Save to the data store
         boolean success = paymentDAO.addPayment(payment);

@@ -1,56 +1,49 @@
 package com.rentalapp.model;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Objects;
+import java.time.LocalDateTime;
 
 /**
- * Represents a payment in the rental system.
+ * Model class representing a payment in the vehicle rental system.
  */
-public class Payment implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class Payment {
     
     private String id;
     private String bookingId;
+    private String userId;
     private BigDecimal amount;
-    private LocalDate paymentDate;
-    private String paymentMethod;  // CASH, CREDIT_CARD, BANK_TRANSFER, etc.
-    private String status;  // PENDING, APPROVED, REJECTED
-    private String transactionId;
-    private String paymentSlipPath;  // Path to the uploaded payment slip file
+    private String paymentMethod;
+    private String slipImagePath;
+    private LocalDateTime paymentDate;
+    private String status; // pending, approved, rejected
+    private String notes;
+    private String adminId; // ID of the admin who processed the payment
+    private LocalDateTime processedDate;
     
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    
-    // Default constructor
+    /**
+     * Default constructor
+     */
     public Payment() {
-        this.paymentDate = LocalDate.now();
-        this.status = "PENDING";  // Default status
-        this.amount = BigDecimal.ZERO;
+        // Default constructor needed for object creation
     }
     
-    // Parameterized constructor
-    public Payment(String id, String bookingId, BigDecimal amount, LocalDate paymentDate, 
-                  String paymentMethod, String status, String transactionId, String paymentSlipPath) {
+    /**
+     * Constructor with essential fields
+     */
+    public Payment(String id, String bookingId, String userId, BigDecimal amount, 
+                  String paymentMethod, String slipImagePath, LocalDateTime paymentDate, 
+                  String status) {
         this.id = id;
         this.bookingId = bookingId;
+        this.userId = userId;
         this.amount = amount;
-        this.paymentDate = paymentDate;
         this.paymentMethod = paymentMethod;
+        this.slipImagePath = slipImagePath;
+        this.paymentDate = paymentDate;
         this.status = status;
-        this.transactionId = transactionId;
-        this.paymentSlipPath = paymentSlipPath;
     }
     
-    // Legacy constructor for backward compatibility
-    public Payment(String id, String bookingId, double amount, LocalDate paymentDate, 
-                  String paymentMethod, String status, String transactionId, String paymentSlipPath) {
-        this(id, bookingId, new BigDecimal(String.valueOf(amount)), paymentDate, 
-             paymentMethod, status, transactionId, paymentSlipPath);
-    }
-    
-    // Getters and setters
+    // Getters and Setters
     public String getId() {
         return id;
     }
@@ -67,25 +60,20 @@ public class Payment implements Serializable {
         this.bookingId = bookingId;
     }
     
+    public String getUserId() {
+        return userId;
+    }
+    
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+    
     public BigDecimal getAmount() {
         return amount;
     }
     
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
-    }
-    
-    // Legacy method for backward compatibility
-    public void setAmount(double amount) {
-        this.amount = new BigDecimal(String.valueOf(amount));
-    }
-    
-    public LocalDate getPaymentDate() {
-        return paymentDate;
-    }
-    
-    public void setPaymentDate(LocalDate paymentDate) {
-        this.paymentDate = paymentDate;
     }
     
     public String getPaymentMethod() {
@@ -96,6 +84,22 @@ public class Payment implements Serializable {
         this.paymentMethod = paymentMethod;
     }
     
+    public String getSlipImagePath() {
+        return slipImagePath;
+    }
+    
+    public void setSlipImagePath(String slipImagePath) {
+        this.slipImagePath = slipImagePath;
+    }
+    
+    public LocalDateTime getPaymentDate() {
+        return paymentDate;
+    }
+    
+    public void setPaymentDate(LocalDateTime paymentDate) {
+        this.paymentDate = paymentDate;
+    }
+    
     public String getStatus() {
         return status;
     }
@@ -104,74 +108,61 @@ public class Payment implements Serializable {
         this.status = status;
     }
     
-    public String getTransactionId() {
-        return transactionId;
+    public String getNotes() {
+        return notes;
     }
     
-    public void setTransactionId(String transactionId) {
-        this.transactionId = transactionId;
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
     
-    public String getPaymentSlipPath() {
-        return paymentSlipPath;
+    public String getAdminId() {
+        return adminId;
     }
     
-    public void setPaymentSlipPath(String paymentSlipPath) {
-        this.paymentSlipPath = paymentSlipPath;
+    public void setAdminId(String adminId) {
+        this.adminId = adminId;
     }
     
-    // Check if payment is approved
-    public boolean isApproved() {
-        return "APPROVED".equalsIgnoreCase(status);
+    public LocalDateTime getProcessedDate() {
+        return processedDate;
     }
     
-    // Check if payment is rejected
-    public boolean isRejected() {
-        return "REJECTED".equalsIgnoreCase(status);
+    public void setProcessedDate(LocalDateTime processedDate) {
+        this.processedDate = processedDate;
     }
     
-    // Check if payment is pending
+    /**
+     * Check if the payment is pending
+     */
     public boolean isPending() {
-        return "PENDING".equalsIgnoreCase(status);
+        return "pending".equalsIgnoreCase(status);
+    }
+    
+    /**
+     * Check if the payment is approved
+     */
+    public boolean isApproved() {
+        return "approved".equalsIgnoreCase(status);
+    }
+    
+    /**
+     * Check if the payment is rejected
+     */
+    public boolean isRejected() {
+        return "rejected".equalsIgnoreCase(status);
     }
     
     @Override
     public String toString() {
-        return id + "," + bookingId + "," + amount + "," + 
-               paymentDate.format(DATE_FORMATTER) + "," + 
-               paymentMethod + "," + status + "," + 
-               transactionId + "," + paymentSlipPath;
-    }
-    
-    // Used for CSV-like storage
-    public static Payment fromString(String line) {
-        String[] parts = line.split(",");
-        if (parts.length < 8) {
-            throw new IllegalArgumentException("Invalid payment data format");
-        }
-        
-        return new Payment(
-            parts[0],
-            parts[1],
-            new BigDecimal(parts[2]),
-            LocalDate.parse(parts[3], DATE_FORMATTER),
-            parts[4],
-            parts[5],
-            parts[6],
-            parts[7]
-        );
-    }
-    
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Payment payment = (Payment) o;
-        return Objects.equals(id, payment.id);
-    }
-    
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
+        return "Payment{" +
+                "id='" + id + '\'' +
+                ", bookingId='" + bookingId + '\'' +
+                ", userId='" + userId + '\'' +
+                ", amount=" + amount +
+                ", paymentMethod='" + paymentMethod + '\'' +
+                ", status='" + status + '\'' +
+                ", paymentDate=" + paymentDate +
+                '}';
     }
 }

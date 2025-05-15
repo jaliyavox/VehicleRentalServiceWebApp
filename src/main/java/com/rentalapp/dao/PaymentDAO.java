@@ -5,8 +5,12 @@ import com.rentalapp.util.FileUtil;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -17,7 +21,8 @@ import java.util.stream.Collectors;
 public class PaymentDAO {
     private static final Logger LOGGER = Logger.getLogger(PaymentDAO.class.getName());
     private static final String PAYMENTS_FILE = "payments.txt";
-    
+    private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     /**
      * Retrieves all payments from the data store.
      * 
@@ -29,7 +34,10 @@ public class PaymentDAO {
         
         for (String line : lines) {
             try {
-                payments.add(Payment.fromString(line));
+                Payment payment = parsePaymentFromLine(line);
+                if (payment != null) {
+                    payments.add(payment);
+                }
             } catch (Exception e) {
                 LOGGER.log(Level.WARNING, "Error parsing payment line: " + line, e);
             }
@@ -45,6 +53,10 @@ public class PaymentDAO {
      * @return the payment with the specified ID, or null if not found
      */
     public Payment getPaymentById(String id) {
+        if (id == null || id.isEmpty()) {
+            return null;
+        }
+        
         List<Payment> payments = getAllPayments();
         
         for (Payment payment : payments) {
@@ -74,10 +86,11 @@ public class PaymentDAO {
         
         // Set payment date if not already set
         if (payment.getPaymentDate() == null) {
-            payment.setPaymentDate(LocalDate.now());
+            payment.setPaymentDate(LocalDateTime.now());
         }
         
-        return FileUtil.appendLine(PAYMENTS_FILE, payment.toString());
+        String paymentLine = formatPaymentToLine(payment);
+        return FileUtil.appendLine(PAYMENTS_FILE, paymentLine);
     }
     
     /**
@@ -217,14 +230,12 @@ public class PaymentDAO {
         
         // Create a new payment record for the refund
         Payment refund = new Payment();
-        refund.setId(FileUtil.generateUniqueId());
+        refund.setId(UUID.randomUUID().toString());
         refund.setBookingId(payment.getBookingId());
         refund.setAmount(payment.getAmount().negate()); // Negative amount for refund
-        refund.setPaymentDate(LocalDate.now());
+        refund.setPaymentDate(LocalDateTime.now());
         refund.setPaymentMethod("REFUND");
         refund.setStatus("APPROVED"); // Auto-approve refunds
-        refund.setTransactionId("REF-" + payment.getTransactionId());
-        refund.setPaymentSlipPath("");
         
         return addPayment(refund);
     }
@@ -236,5 +247,95 @@ public class PaymentDAO {
      */
     public List<Payment> getPendingPayments() {
         return getPaymentsByStatus("PENDING");
+    }
+    
+    /**
+     * Parse payment data from a line in the data file
+     */
+    private Payment parsePaymentFromLine(String line) {
+        if (line == null || line.trim().isEmpty()) {
+            return null;
+        }
+        
+        String[] parts = line.split("\\|");
+        if (parts.length < 8) { // Check for minimum required fields
+            LOGGER.warning("Invalid payment data format: " + line);
+            return null;
+        }
+        
+        try {
+            Payment payment = new Payment();
+            payment.setId(parts[0]);
+            payment.setBookingId(parts[1]);
+            payment.setUserId(parts[2]);
+            payment.setAmount(new BigDecimal(parts[3]));
+            payment.setPaymentMethod(parts[4]);
+            payment.setSlipImagePath(parts[5]);
+            
+            try {
+                payment.setPaymentDate(LocalDateTime.parse(parts[6], DATETIME_FORMATTER));
+            } catch (DateTimeParseException e) {
+                LOGGER.warning("Invalid payment date format: " + parts[6]);
+                payment.setPaymentDate(LocalDateTime.now());
+            }
+            
+            payment.setStatus(parts[7]);
+            
+            // Optional fields
+            if (parts.length > 8) {
+                payment.setNotes(parts[8]);
+            }
+            
+            if (parts.length > 9) {
+                payment.setAdminId(parts[9]);
+            }
+            
+            if (parts.length > 10) {
+                try {
+                    payment.setProcessedDate(LocalDateTime.parse(parts[10], DATETIME_FORMATTER));
+                } catch (DateTimeParseException e) {
+                    // Optional field, ignore parsing error
+                }
+            }
+            
+            return payment;
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Error parsing payment data: " + line, e);
+            return null;
+        }
+    }
+    
+    /**
+     * Format a payment object to a string for storage
+     */
+    private String formatPaymentToLine(Payment payment) {
+        if (payment == null) {
+            return "";
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append(payment.getId()).append("|");
+        sb.append(payment.getBookingId()).append("|");
+        sb.append(payment.getUserId()).append("|");
+        sb.append(payment.getAmount()).append("|");
+        sb.append(payment.getPaymentMethod()).append("|");
+        sb.append(payment.getSlipImagePath() != null ? payment.getSlipImagePath() : "").append("|");
+        
+        // Format the payment date
+        sb.append(payment.getPaymentDate() != null ? 
+                payment.getPaymentDate().format(DATETIME_FORMATTER) : 
+                LocalDateTime.now().format(DATETIME_FORMATTER))
+          .append("|");
+        
+        sb.append(payment.getStatus()).append("|");
+        sb.append(payment.getNotes() != null ? payment.getNotes() : "").append("|");
+        sb.append(payment.getAdminId() != null ? payment.getAdminId() : "").append("|");
+        
+        // Format the processed date if available
+        if (payment.getProcessedDate() != null) {
+            sb.append(payment.getProcessedDate().format(DATETIME_FORMATTER));
+        }
+        
+        return sb.toString();
     }
 }
