@@ -17,6 +17,7 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -144,17 +145,17 @@ public class ProcessPaymentServlet extends HttpServlet {
         }
         
         // Amount validation
-        double amount = 0.0;
+        BigDecimal amount = BigDecimal.ZERO;
         if (amountStr == null || amountStr.isEmpty()) {
             request.setAttribute("amountError", "Amount is required");
             isValid = false;
         } else {
             try {
-                amount = Double.parseDouble(amountStr);
-                if (amount <= 0) {
+                amount = new BigDecimal(amountStr);
+                if (amount.compareTo(BigDecimal.ZERO) <= 0) {
                     request.setAttribute("amountError", "Amount must be greater than zero");
                     isValid = false;
-                } else if (booking != null && amount < booking.getTotalCost()) {
+                } else if (booking != null && amount.compareTo(booking.getTotalCost()) < 0) {
                     request.setAttribute("amountError", "Amount must be at least the total cost of the booking");
                     isValid = false;
                 }

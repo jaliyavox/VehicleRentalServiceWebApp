@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.logging.Logger;
 
 /**
@@ -136,14 +137,14 @@ public class UpdateVehicleServlet extends HttpServlet {
             isValid = false;
         }
         
-        double dailyRate = 0.0;
+        BigDecimal dailyRate = BigDecimal.ZERO;
         if (dailyRateStr == null || dailyRateStr.isEmpty()) {
             request.setAttribute("dailyRateError", "Daily rate is required");
             isValid = false;
         } else {
             try {
-                dailyRate = Double.parseDouble(dailyRateStr);
-                if (dailyRate <= 0) {
+                dailyRate = new BigDecimal(dailyRateStr);
+                if (dailyRate.compareTo(BigDecimal.ZERO) <= 0) {
                     request.setAttribute("dailyRateError", "Daily rate must be greater than zero");
                     isValid = false;
                 }

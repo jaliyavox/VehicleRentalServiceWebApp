@@ -1,52 +1,98 @@
 package com.rentalapp.model;
 
-import java.io.Serializable;
-import java.util.Objects;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
- * Represents a vehicle in the rental system.
+ * Represents a vehicle in the rental system
  */
-public class Vehicle implements Serializable {
-    private static final long serialVersionUID = 1L;
-    
+public class Vehicle {
     private String id;
-    private String type;
+    private String name;
+    private String type; // car, motorcycle, bicycle, etc.
     private String make;
     private String model;
     private int year;
-    private String registrationNumber;
-    private double dailyRate;
-    private boolean available;
+    private String color;
+    private String licensePlate;
+    private BigDecimal dailyRate;
+    private String status; // available, rented, maintenance
     private String imageUrl;
     private String description;
+    private List<String> features;
+    private int seatingCapacity;
+    private String fuelType;
+    private String transmission;
+    private double avgRating;
+    private int reviewCount;
     
-    // Default constructor
+    /**
+     * Default constructor
+     */
     public Vehicle() {
+        this.features = new ArrayList<>();
     }
     
-    // Parameterized constructor
-    public Vehicle(String id, String type, String make, String model, int year, 
-                   String registrationNumber, double dailyRate, boolean available, 
-                   String imageUrl, String description) {
+    /**
+     * Constructor with essential fields
+     */
+    public Vehicle(String id, String name, String type, String make, String model, int year, 
+                  BigDecimal dailyRate, String status) {
         this.id = id;
+        this.name = name;
         this.type = type;
         this.make = make;
         this.model = model;
         this.year = year;
-        this.registrationNumber = registrationNumber;
         this.dailyRate = dailyRate;
-        this.available = available;
-        this.imageUrl = imageUrl;
-        this.description = description;
+        this.status = status;
+        this.features = new ArrayList<>();
     }
     
-    // Getters and setters
+    /**
+     * Full constructor
+     */
+    public Vehicle(String id, String name, String type, String make, String model, int year,
+                  String color, String licensePlate, BigDecimal dailyRate, String status,
+                  String imageUrl, String description, List<String> features, int seatingCapacity,
+                  String fuelType, String transmission) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.make = make;
+        this.model = model;
+        this.year = year;
+        this.color = color;
+        this.licensePlate = licensePlate;
+        this.dailyRate = dailyRate;
+        this.status = status;
+        this.imageUrl = imageUrl;
+        this.description = description;
+        this.features = features != null ? features : new ArrayList<>();
+        this.seatingCapacity = seatingCapacity;
+        this.fuelType = fuelType;
+        this.transmission = transmission;
+        this.avgRating = 0.0;
+        this.reviewCount = 0;
+    }
+    
+    // Getters and Setters
+    
     public String getId() {
         return id;
     }
     
     public void setId(String id) {
         this.id = id;
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
     }
     
     public String getType() {
@@ -81,28 +127,36 @@ public class Vehicle implements Serializable {
         this.year = year;
     }
     
-    public String getRegistrationNumber() {
-        return registrationNumber;
+    public String getColor() {
+        return color;
     }
     
-    public void setRegistrationNumber(String registrationNumber) {
-        this.registrationNumber = registrationNumber;
+    public void setColor(String color) {
+        this.color = color;
     }
     
-    public double getDailyRate() {
+    public String getLicensePlate() {
+        return licensePlate;
+    }
+    
+    public void setLicensePlate(String licensePlate) {
+        this.licensePlate = licensePlate;
+    }
+    
+    public BigDecimal getDailyRate() {
         return dailyRate;
     }
     
-    public void setDailyRate(double dailyRate) {
+    public void setDailyRate(BigDecimal dailyRate) {
         this.dailyRate = dailyRate;
     }
     
-    public boolean isAvailable() {
-        return available;
+    public String getStatus() {
+        return status;
     }
     
-    public void setAvailable(boolean available) {
-        this.available = available;
+    public void setStatus(String status) {
+        this.status = status;
     }
     
     public String getImageUrl() {
@@ -121,44 +175,111 @@ public class Vehicle implements Serializable {
         this.description = description;
     }
     
+    public List<String> getFeatures() {
+        return features;
+    }
+    
+    public void setFeatures(List<String> features) {
+        this.features = features;
+    }
+    
+    public void addFeature(String feature) {
+        if (this.features == null) {
+            this.features = new ArrayList<>();
+        }
+        this.features.add(feature);
+    }
+    
+    public int getSeatingCapacity() {
+        return seatingCapacity;
+    }
+    
+    public void setSeatingCapacity(int seatingCapacity) {
+        this.seatingCapacity = seatingCapacity;
+    }
+    
+    public String getFuelType() {
+        return fuelType;
+    }
+    
+    public void setFuelType(String fuelType) {
+        this.fuelType = fuelType;
+    }
+    
+    public String getTransmission() {
+        return transmission;
+    }
+    
+    public void setTransmission(String transmission) {
+        this.transmission = transmission;
+    }
+    
+    public double getAvgRating() {
+        return avgRating;
+    }
+    
+    public void setAvgRating(double avgRating) {
+        this.avgRating = avgRating;
+    }
+    
+    public int getReviewCount() {
+        return reviewCount;
+    }
+    
+    public void setReviewCount(int reviewCount) {
+        this.reviewCount = reviewCount;
+    }
+    
+    /**
+     * Updates the average rating when a new review is added
+     */
+    public void updateRating(int newRating) {
+        double totalRating = (avgRating * reviewCount) + newRating;
+        reviewCount++;
+        avgRating = totalRating / reviewCount;
+    }
+    
+    /**
+     * Set vehicle availability status
+     * @param available if true, set status to "available"
+     */
+    public void setAvailable(boolean available) {
+        this.status = available ? "available" : "rented";
+    }
+    
+    /**
+     * Check if the vehicle is available
+     * @return true if status is "available"
+     */
+    public boolean isAvailable() {
+        return "available".equalsIgnoreCase(this.status);
+    }
+    
+    /**
+     * Set registration number (alias for license plate for backward compatibility)
+     */
+    public void setRegistrationNumber(String registrationNumber) {
+        this.licensePlate = registrationNumber;
+    }
+    
+    /**
+     * Get registration number (alias for license plate for backward compatibility)
+     */
+    public String getRegistrationNumber() {
+        return this.licensePlate;
+    }
+    
     @Override
     public String toString() {
-        return id + "," + type + "," + make + "," + model + "," + year + "," + 
-               registrationNumber + "," + dailyRate + "," + available + "," + 
-               imageUrl + "," + description;
-    }
-    
-    // Used for CSV-like storage
-    public static Vehicle fromString(String line) {
-        String[] parts = line.split(",");
-        if (parts.length < 10) {
-            throw new IllegalArgumentException("Invalid vehicle data format");
-        }
-        
-        return new Vehicle(
-            parts[0],
-            parts[1],
-            parts[2],
-            parts[3],
-            Integer.parseInt(parts[4]),
-            parts[5],
-            Double.parseDouble(parts[6]),
-            Boolean.parseBoolean(parts[7]),
-            parts[8],
-            parts[9]
-        );
-    }
-    
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Vehicle vehicle = (Vehicle) o;
-        return Objects.equals(id, vehicle.id);
-    }
-    
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
+        return "Vehicle{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", type='" + type + '\'' +
+                ", make='" + make + '\'' +
+                ", model='" + model + '\'' +
+                ", year=" + year +
+                ", dailyRate=" + dailyRate +
+                ", status='" + status + '\'' +
+                '}';
     }
 }

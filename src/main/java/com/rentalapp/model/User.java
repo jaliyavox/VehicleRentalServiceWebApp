@@ -14,12 +14,17 @@ public class User implements Serializable {
     private String id;
     private String username;
     private String password;
+    private String firstName;
+    private String lastName;
     private String fullName;
     private String email;
     private String phone;
     private String address;
     private String role;
     private LocalDate registrationDate;
+    private LocalDate dateOfBirth;
+    private String licenseNumber;
+    private String profilePicture;
     
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     
@@ -115,6 +120,59 @@ public class User implements Serializable {
     
     public void setRegistrationDate(LocalDate registrationDate) {
         this.registrationDate = registrationDate;
+    }
+    
+    public String getFirstName() {
+        return firstName;
+    }
+    
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+        updateFullName();
+    }
+    
+    public String getLastName() {
+        return lastName;
+    }
+    
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+        updateFullName();
+    }
+    
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+    
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+    
+    public String getLicenseNumber() {
+        return licenseNumber;
+    }
+    
+    public void setLicenseNumber(String licenseNumber) {
+        this.licenseNumber = licenseNumber;
+    }
+    
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+    
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
+    }
+    
+    // Helper method to update fullName when first or last name changes
+    private void updateFullName() {
+        if (firstName != null && lastName != null) {
+            this.fullName = firstName + " " + lastName;
+        } else if (firstName != null) {
+            this.fullName = firstName;
+        } else if (lastName != null) {
+            this.fullName = lastName;
+        }
     }
     
     // Check if user is an admin

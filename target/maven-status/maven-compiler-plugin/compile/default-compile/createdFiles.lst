@@ -15,6 +15,7 @@ com/rentalapp/listener/ApplicationInitializer.class
 com/rentalapp/controller/review/AddReviewServlet.class
 com/rentalapp/model/Booking.class
 com/rentalapp/model/Payment.class
+com/rentalapp/filter/AdminAuthFilter.class
 com/rentalapp/dao/AdminDAO.class
 com/rentalapp/controller/vehicle/AddVehicleServlet.class
 com/rentalapp/controller/booking/CancelBookingServlet.class

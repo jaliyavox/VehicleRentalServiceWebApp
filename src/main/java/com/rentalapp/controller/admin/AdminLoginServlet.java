@@ -1,9 +1,5 @@
 package com.rentalapp.controller.admin;
 
-import com.rentalapp.dao.AdminDAO;
-import com.rentalapp.model.Admin;
-import com.rentalapp.util.ValidationUtil;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -11,88 +7,96 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.rentalapp.dao.AdminDAO;
+import com.rentalapp.model.Admin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
- * Servlet for handling admin login.
+ * Servlet to handle admin login functionality
  */
-@javax.servlet.annotation.WebServlet("/admin/login")
+@WebServlet(name = "AdminLoginServlet", urlPatterns = {"/admin/login"})
 public class AdminLoginServlet extends HttpServlet {
-    private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = Logger.getLogger(AdminLoginServlet.class.getName());
     
+    private static final Logger logger = LoggerFactory.getLogger(AdminLoginServlet.class);
     private AdminDAO adminDAO;
     
     @Override
     public void init() throws ServletException {
         super.init();
         adminDAO = new AdminDAO();
-        
-        // Create a default admin account if needed
-        adminDAO.createDefaultAdminIfNeeded();
     }
     
+    /**
+     * Display the admin login form
+     */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Check if the admin is already logged in
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        
+        // Check if already logged in as admin
         HttpSession session = request.getSession(false);
-        if (session != null && session.getAttribute("adminId") != null) {
-            // Admin is already logged in, redirect to dashboard
+        if (session != null && session.getAttribute("isAdmin") != null 
+                && (Boolean)session.getAttribute("isAdmin")) {
+            // Already logged in, redirect to admin dashboard
             response.sendRedirect(request.getContextPath() + "/admin/dashboard");
             return;
         }
         
-        // Forward to the admin login page
+        // Forward to login page
         request.getRequestDispatcher("/admin/login.jsp").forward(request, response);
     }
     
+    /**
+     * Process admin login attempt
+     */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Get form parameters
-        String username = ValidationUtil.sanitizeString(request.getParameter("username"));
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        
+        String username = request.getParameter("username");
         String password = request.getParameter("password");
         
-        // Validate input
-        boolean isValid = true;
-        
-        if (username == null || username.isEmpty()) {
-            request.setAttribute("usernameError", "Username is required");
-            isValid = false;
-        }
-        
-        if (password == null || password.isEmpty()) {
-            request.setAttribute("passwordError", "Password is required");
-            isValid = false;
-        }
-        
-        // If validation fails, redisplay the form with error messages
-        if (!isValid) {
-            request.setAttribute("username", username);
+        // Input validation
+        if (username == null || username.trim().isEmpty() || 
+            password == null || password.trim().isEmpty()) {
+            
+            request.setAttribute("errorMessage", "Username and password are required");
+            request.setAttribute("username", username); // Preserve username for form
             request.getRequestDispatcher("/admin/login.jsp").forward(request, response);
             return;
         }
         
-        // Authenticate the admin
-        Admin admin = adminDAO.authenticateAdmin(username, password);
-        
-        if (admin != null) {
-            // Create a new session and store admin details
-            HttpSession session = request.getSession(true);
-            session.setAttribute("adminId", admin.getId());
-            session.setAttribute("adminUsername", admin.getUsername());
-            session.setAttribute("adminFullName", admin.getFullName());
-            session.setAttribute("isAdmin", true);
+        try {
+            // Authenticate admin
+            Admin admin = adminDAO.authenticate(username, password);
             
-            // Set session timeout to 30 minutes
-            session.setMaxInactiveInterval(30 * 60);
+            if (admin != null) {
+                // Successful login, create admin session
+                HttpSession session = request.getSession();
+                session.setAttribute("userId", admin.getId());
+                session.setAttribute("username", admin.getUsername());
+                session.setAttribute("fullName", admin.getFullName());
+                session.setAttribute("isAdmin", true);
+                
+                logger.info("Admin login successful: {}", username);
+                
+                // Redirect to admin dashboard
+                response.sendRedirect(request.getContextPath() + "/admin/dashboard");
+            } else {
+                // Failed login
+                logger.warn("Admin login failed for username: {}", username);
+                request.setAttribute("errorMessage", "Invalid username or password");
+                request.setAttribute("username", username); // Preserve username for form
+                request.getRequestDispatcher("/admin/login.jsp").forward(request, response);
+            }
             
-            // Redirect to the admin dashboard
-            response.sendRedirect(request.getContextPath() + "/admin/dashboard");
-        } else {
-            // Authentication failed, redisplay the form with an error message
-            request.setAttribute("errorMessage", "Invalid username or password");
-            request.setAttribute("username", username);
+        } catch (Exception e) {
+            logger.error("Error during admin login", e);
+            request.setAttribute("errorMessage", "An error occurred during login. Please try again.");
+            request.setAttribute("username", username); // Preserve username for form
             request.getRequestDispatcher("/admin/login.jsp").forward(request, response);
         }
     }

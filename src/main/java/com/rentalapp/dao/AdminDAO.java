@@ -1,173 +1,179 @@
 package com.rentalapp.dao;
 
 import com.rentalapp.model.Admin;
-import com.rentalapp.util.FileUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 /**
- * Data Access Object for Admin entity.
+ * Data Access Object for Admin operations
  */
 public class AdminDAO {
-    private static final Logger LOGGER = Logger.getLogger(AdminDAO.class.getName());
-    private static final String ADMINS_FILE = "admins.txt";
+    
+    private static final Logger logger = LoggerFactory.getLogger(AdminDAO.class);
+    private static final String ADMINS_FILE_PATH = "src/main/resources/data/admins.txt";
     
     /**
-     * Retrieves all admins from the data store.
-     * 
-     * @return a list of all admins
+     * Default constructor
+     */
+    public AdminDAO() {
+        // Initialize if needed
+    }
+    
+    /**
+     * Authenticate an admin based on username and password
+     */
+    public Admin authenticate(String username, String password) {
+        try {
+            List<Admin> admins = getAllAdmins();
+            
+            for (Admin admin : admins) {
+                if (admin.getUsername().equals(username) && admin.getPassword().equals(password)) {
+                    return admin;
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error authenticating admin", e);
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Get admin by ID
+     */
+    public Admin getById(String id) {
+        try {
+            List<Admin> admins = getAllAdmins();
+            
+            for (Admin admin : admins) {
+                if (admin.getId().equals(id)) {
+                    return admin;
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error getting admin by ID", e);
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Get all admins from the data file
      */
     public List<Admin> getAllAdmins() {
-        List<String> lines = FileUtil.readAllLines(ADMINS_FILE);
         List<Admin> admins = new ArrayList<>();
         
-        for (String line : lines) {
-            try {
-                admins.add(Admin.fromString(line));
-            } catch (Exception e) {
-                LOGGER.log(Level.WARNING, "Error parsing admin line: " + line, e);
+        try (BufferedReader reader = new BufferedReader(new FileReader(ADMINS_FILE_PATH))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (!line.trim().isEmpty()) {
+                    Admin admin = parseAdminFromLine(line);
+                    if (admin != null) {
+                        admins.add(admin);
+                    }
+                }
             }
+        } catch (IOException e) {
+            logger.error("Error reading admins file", e);
         }
         
         return admins;
     }
     
     /**
-     * Retrieves an admin by ID.
-     * 
-     * @param id the ID of the admin to retrieve
-     * @return the admin with the specified ID, or null if not found
-     */
-    public Admin getAdminById(String id) {
-        List<Admin> admins = getAllAdmins();
-        
-        for (Admin admin : admins) {
-            if (admin.getId().equals(id)) {
-                return admin;
-            }
-        }
-        
-        return null;
-    }
-    
-    /**
-     * Retrieves an admin by username.
-     * 
-     * @param username the username of the admin to retrieve
-     * @return the admin with the specified username, or null if not found
-     */
-    public Admin getAdminByUsername(String username) {
-        List<Admin> admins = getAllAdmins();
-        
-        for (Admin admin : admins) {
-            if (admin.getUsername().equals(username)) {
-                return admin;
-            }
-        }
-        
-        return null;
-    }
-    
-    /**
-     * Adds a new admin to the data store.
-     * 
-     * @param admin the admin to add
-     * @return true if successful, false otherwise
+     * Add a new admin
      */
     public boolean addAdmin(Admin admin) {
-        if (admin == null || admin.getId() == null || admin.getId().isEmpty()) {
-            return false;
+        if (admin.getId() == null || admin.getId().trim().isEmpty()) {
+            admin.setId(UUID.randomUUID().toString());
         }
         
-        // Check if admin already exists
-        if (getAdminById(admin.getId()) != null || getAdminByUsername(admin.getUsername()) != null) {
+        try {
+            String adminRecord = formatAdminToLine(admin);
+            Path path = Paths.get(ADMINS_FILE_PATH);
+            Files.write(path, (adminRecord + System.lineSeparator()).getBytes(), 
+                    Files.exists(path) ? java.nio.file.StandardOpenOption.APPEND : java.nio.file.StandardOpenOption.CREATE);
+            
+            return true;
+        } catch (IOException e) {
+            logger.error("Error adding admin", e);
             return false;
         }
-        
-        return FileUtil.appendLine(ADMINS_FILE, admin.toString());
     }
     
     /**
-     * Updates an existing admin in the data store.
-     * 
-     * @param admin the admin to update
-     * @return true if successful, false otherwise
+     * Update an existing admin
      */
     public boolean updateAdmin(Admin admin) {
-        if (admin == null || admin.getId() == null || admin.getId().isEmpty()) {
-            return false;
-        }
-        
-        List<Admin> admins = getAllAdmins();
-        boolean found = false;
-        
-        for (int i = 0; i < admins.size(); i++) {
-            if (admins.get(i).getId().equals(admin.getId())) {
-                // Check if trying to change username to one that already exists for another admin
-                if (!admins.get(i).getUsername().equals(admin.getUsername())) {
-                    Admin existingAdmin = getAdminByUsername(admin.getUsername());
-                    if (existingAdmin != null && !existingAdmin.getId().equals(admin.getId())) {
-                        return false;
-                    }
+        try {
+            List<Admin> admins = getAllAdmins();
+            List<String> lines = new ArrayList<>();
+            
+            for (Admin existingAdmin : admins) {
+                if (existingAdmin.getId().equals(admin.getId())) {
+                    lines.add(formatAdminToLine(admin));
+                } else {
+                    lines.add(formatAdminToLine(existingAdmin));
                 }
-                
-                admins.set(i, admin);
-                found = true;
-                break;
             }
-        }
-        
-        if (!found) {
+            
+            Files.write(Paths.get(ADMINS_FILE_PATH), String.join(System.lineSeparator(), lines).getBytes());
+            
+            return true;
+        } catch (IOException e) {
+            logger.error("Error updating admin", e);
             return false;
         }
-        
-        List<String> lines = admins.stream()
-                .map(Admin::toString)
-                .collect(Collectors.toList());
-        
-        return FileUtil.writeAllLines(ADMINS_FILE, lines);
     }
     
     /**
-     * Deletes an admin from the data store.
-     * 
-     * @param id the ID of the admin to delete
-     * @return true if successful, false otherwise
+     * Delete an admin by ID
      */
-    public boolean deleteAdmin(String id) {
-        if (id == null || id.isEmpty()) {
+    public boolean deleteAdmin(String adminId) {
+        try {
+            List<Admin> admins = getAllAdmins();
+            List<String> lines = new ArrayList<>();
+            
+            for (Admin admin : admins) {
+                if (!admin.getId().equals(adminId)) {
+                    lines.add(formatAdminToLine(admin));
+                }
+            }
+            
+            Files.write(Paths.get(ADMINS_FILE_PATH), String.join(System.lineSeparator(), lines).getBytes());
+            
+            return true;
+        } catch (IOException e) {
+            logger.error("Error deleting admin", e);
             return false;
         }
-        
-        List<Admin> admins = getAllAdmins();
-        boolean removed = admins.removeIf(a -> a.getId().equals(id));
-        
-        if (!removed) {
-            return false;
-        }
-        
-        List<String> lines = admins.stream()
-                .map(Admin::toString)
-                .collect(Collectors.toList());
-        
-        return FileUtil.writeAllLines(ADMINS_FILE, lines);
     }
     
     /**
-     * Authenticates an admin.
-     * 
-     * @param username the username of the admin to authenticate
-     * @param password the password to check
-     * @return the authenticated admin, or null if authentication failed
+     * Parse an admin from a line in the data file
      */
-    public Admin authenticateAdmin(String username, String password) {
-        Admin admin = getAdminByUsername(username);
+    private Admin parseAdminFromLine(String line) {
+        String[] parts = line.split("\\|");
         
-        if (admin != null && admin.authenticate(password)) {
+        if (parts.length >= 6) {
+            Admin admin = new Admin();
+            admin.setId(parts[0]);
+            admin.setUsername(parts[1]);
+            admin.setPassword(parts[2]);
+            admin.setFullName(parts[3]);
+            admin.setEmail(parts[4]);
+            admin.setRole(parts[5]);
+            
             return admin;
         }
         
@@ -175,43 +181,15 @@ public class AdminDAO {
     }
     
     /**
-     * Checks if an admin has a specific permission.
-     * 
-     * @param adminId the ID of the admin to check
-     * @param permission the permission to check for
-     * @return true if the admin has the permission, false otherwise
+     * Format an admin as a line for the data file
      */
-    public boolean hasPermission(String adminId, String permission) {
-        Admin admin = getAdminById(adminId);
-        
-        if (admin == null) {
-            return false;
-        }
-        
-        return admin.hasPermission(permission);
-    }
-    
-    /**
-     * Creates a default admin if no admins exist.
-     * 
-     * @return true if a default admin was created, false otherwise
-     */
-    public boolean createDefaultAdminIfNeeded() {
-        List<Admin> admins = getAllAdmins();
-        
-        if (admins.isEmpty()) {
-            Admin defaultAdmin = new Admin();
-            defaultAdmin.setId(FileUtil.generateUniqueId());
-            defaultAdmin.setUsername("admin");
-            defaultAdmin.setPassword("admin123"); // Should be changed after first login in a real system
-            defaultAdmin.setFullName("System Administrator");
-            defaultAdmin.setEmail("admin@example.com");
-            defaultAdmin.setRole("ADMIN");
-            defaultAdmin.setPermissions("ALL");
-            
-            return addAdmin(defaultAdmin);
-        }
-        
-        return false;
+    private String formatAdminToLine(Admin admin) {
+        return String.join("|", 
+                admin.getId(),
+                admin.getUsername(),
+                admin.getPassword(),
+                admin.getFullName(),
+                admin.getEmail(),
+                admin.getRole());
     }
 }

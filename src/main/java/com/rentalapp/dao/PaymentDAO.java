@@ -3,6 +3,7 @@ package com.rentalapp.dao;
 import com.rentalapp.model.Payment;
 import com.rentalapp.util.FileUtil;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -218,7 +219,7 @@ public class PaymentDAO {
         Payment refund = new Payment();
         refund.setId(FileUtil.generateUniqueId());
         refund.setBookingId(payment.getBookingId());
-        refund.setAmount(-payment.getAmount()); // Negative amount for refund
+        refund.setAmount(payment.getAmount().negate()); // Negative amount for refund
         refund.setPaymentDate(LocalDate.now());
         refund.setPaymentMethod("REFUND");
         refund.setStatus("APPROVED"); // Auto-approve refunds

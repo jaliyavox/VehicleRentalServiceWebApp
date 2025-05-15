@@ -1,55 +1,267 @@
 package com.rentalapp.dao;
 
 import com.rentalapp.model.Review;
-import com.rentalapp.util.FileUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.time.LocalDate;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.OptionalDouble;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 /**
- * Data Access Object for Review entity.
+ * Data Access Object for Review operations
  */
 public class ReviewDAO {
-    private static final Logger LOGGER = Logger.getLogger(ReviewDAO.class.getName());
-    private static final String REVIEWS_FILE = "reviews.txt";
+    
+    private static final Logger logger = LoggerFactory.getLogger(ReviewDAO.class);
+    private static final String REVIEWS_FILE_PATH = "src/main/resources/data/reviews.txt";
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    
+    private VehicleDAO vehicleDAO;
+    private UserDAO userDAO;
     
     /**
-     * Retrieves all reviews from the data store.
-     * 
-     * @return a list of all reviews
+     * Default constructor
+     */
+    public ReviewDAO() {
+        vehicleDAO = new VehicleDAO();
+        userDAO = new UserDAO();
+    }
+    
+    /**
+     * Get all reviews
      */
     public List<Review> getAllReviews() {
-        List<String> lines = FileUtil.readAllLines(REVIEWS_FILE);
         List<Review> reviews = new ArrayList<>();
         
-        for (String line : lines) {
-            try {
-                reviews.add(Review.fromString(line));
-            } catch (Exception e) {
-                LOGGER.log(Level.WARNING, "Error parsing review line: " + line, e);
+        try (BufferedReader reader = new BufferedReader(new FileReader(REVIEWS_FILE_PATH))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (!line.trim().isEmpty()) {
+                    Review review = parseReviewFromLine(line);
+                    if (review != null) {
+                        reviews.add(review);
+                    }
+                }
             }
+        } catch (IOException e) {
+            logger.error("Error reading reviews file", e);
         }
         
         return reviews;
     }
     
     /**
-     * Retrieves a review by ID.
-     * 
-     * @param id the ID of the review to retrieve
-     * @return the review with the specified ID, or null if not found
+     * Get review by ID
+     */
+    public Review getById(String id) {
+        try {
+            List<Review> reviews = getAllReviews();
+            
+            for (Review review : reviews) {
+                if (review.getId().equals(id)) {
+                    return review;
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error getting review by ID", e);
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Get review by ID (alias for backward compatibility)
      */
     public Review getReviewById(String id) {
-        List<Review> reviews = getAllReviews();
+        return getById(id);
+    }
+    
+    /**
+     * Get reviews by vehicle ID
+     */
+    public List<Review> getReviewsByVehicleId(String vehicleId) {
+        List<Review> vehicleReviews = new ArrayList<>();
         
+        for (Review review : getAllReviews()) {
+            if (review.getVehicleId().equals(vehicleId)) {
+                vehicleReviews.add(review);
+            }
+        }
+        
+        return vehicleReviews;
+    }
+    
+    /**
+     * Get reviews by vehicle (alias for backward compatibility)
+     */
+    public List<Review> getReviewsByVehicle(String vehicleId) {
+        return getReviewsByVehicleId(vehicleId);
+    }
+    
+    /**
+     * Get average rating for a vehicle
+     */
+    public double getAverageRatingForVehicle(String vehicleId) {
+        List<Review> reviews = getReviewsByVehicleId(vehicleId);
+        
+        if (reviews.isEmpty()) {
+            return 0.0;
+        }
+        
+        double totalRating = 0.0;
         for (Review review : reviews) {
-            if (review.getId().equals(id)) {
+            totalRating += review.getRating();
+        }
+        
+        return totalRating / reviews.size();
+    }
+    
+    /**
+     * Get reviews by user ID
+     */
+    public List<Review> getReviewsByUserId(String userId) {
+        List<Review> userReviews = new ArrayList<>();
+        
+        for (Review review : getAllReviews()) {
+            if (review.getUserId().equals(userId)) {
+                userReviews.add(review);
+            }
+        }
+        
+        return userReviews;
+    }
+    
+    /**
+     * Get reviews by user (alias for backward compatibility)
+     */
+    public List<Review> getReviewsByUser(String userId) {
+        return getReviewsByUserId(userId);
+    }
+    
+    /**
+     * Check if a user has already reviewed a vehicle
+     */
+    public boolean hasUserReviewedVehicle(String userId, String vehicleId) {
+        for (Review review : getAllReviews()) {
+            if (review.getUserId().equals(userId) && review.getVehicleId().equals(vehicleId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Add a new review
+     */
+    public boolean addReview(Review review) {
+        if (review.getId() == null || review.getId().trim().isEmpty()) {
+            review.setId(UUID.randomUUID().toString());
+        }
+        
+        if (review.getReviewDate() == null) {
+            review.setReviewDate(new Date());
+        }
+        
+        try {
+            String reviewRecord = formatReviewToLine(review);
+            Path path = Paths.get(REVIEWS_FILE_PATH);
+            Files.write(path, (reviewRecord + System.lineSeparator()).getBytes(), 
+                    Files.exists(path) ? java.nio.file.StandardOpenOption.APPEND : java.nio.file.StandardOpenOption.CREATE);
+            
+            // Update vehicle average rating
+            vehicleDAO.getById(review.getVehicleId()).updateRating(review.getRating());
+            vehicleDAO.updateVehicle(vehicleDAO.getById(review.getVehicleId()));
+            
+            return true;
+        } catch (IOException e) {
+            logger.error("Error adding review", e);
+            return false;
+        }
+    }
+    
+    /**
+     * Update an existing review
+     */
+    public boolean updateReview(Review review) {
+        try {
+            List<Review> reviews = getAllReviews();
+            List<String> lines = new ArrayList<>();
+            
+            for (Review existingReview : reviews) {
+                if (existingReview.getId().equals(review.getId())) {
+                    lines.add(formatReviewToLine(review));
+                } else {
+                    lines.add(formatReviewToLine(existingReview));
+                }
+            }
+            
+            Files.write(Paths.get(REVIEWS_FILE_PATH), String.join(System.lineSeparator(), lines).getBytes());
+            
+            return true;
+        } catch (IOException e) {
+            logger.error("Error updating review", e);
+            return false;
+        }
+    }
+    
+    /**
+     * Delete a review by ID
+     */
+    public boolean deleteReview(String reviewId) {
+        try {
+            List<Review> reviews = getAllReviews();
+            List<String> lines = new ArrayList<>();
+            
+            for (Review review : reviews) {
+                if (!review.getId().equals(reviewId)) {
+                    lines.add(formatReviewToLine(review));
+                }
+            }
+            
+            Files.write(Paths.get(REVIEWS_FILE_PATH), String.join(System.lineSeparator(), lines).getBytes());
+            
+            return true;
+        } catch (IOException e) {
+            logger.error("Error deleting review", e);
+            return false;
+        }
+    }
+    
+    /**
+     * Parse a review from a line in the data file
+     */
+    private Review parseReviewFromLine(String line) {
+        String[] parts = line.split("\\|");
+        
+        if (parts.length >= 7) {
+            Review review = new Review();
+            
+            try {
+                review.setId(parts[0]);
+                review.setUserId(parts[1]);
+                review.setVehicleId(parts[2]);
+                review.setRating(Integer.parseInt(parts[3]));
+                review.setComment(parts[4]);
+                review.setReviewDate(DATE_FORMAT.parse(parts[5]));
+                review.setVerified(Boolean.parseBoolean(parts[6]));
+                
+                if (parts.length > 7) review.setUserName(parts[7]);
+                if (parts.length > 8) review.setVehicleName(parts[8]);
+                if (parts.length > 9) review.setBookingId(parts[9]);
+                
                 return review;
+            } catch (NumberFormatException | ParseException e) {
+                logger.error("Error parsing review data: " + line, e);
             }
         }
         
@@ -57,156 +269,25 @@ public class ReviewDAO {
     }
     
     /**
-     * Adds a new review to the data store.
-     * 
-     * @param review the review to add
-     * @return true if successful, false otherwise
+     * Format a review as a line for the data file
      */
-    public boolean addReview(Review review) {
-        if (review == null || review.getId() == null || review.getId().isEmpty()) {
-            return false;
-        }
+    private String formatReviewToLine(Review review) {
+        StringBuilder sb = new StringBuilder();
         
-        // Check if review already exists
-        if (getReviewById(review.getId()) != null) {
-            return false;
-        }
+        // Essential fields
+        sb.append(review.getId()).append("|")
+          .append(review.getUserId()).append("|")
+          .append(review.getVehicleId()).append("|")
+          .append(review.getRating()).append("|")
+          .append(review.getComment()).append("|")
+          .append(DATE_FORMAT.format(review.getReviewDate())).append("|")
+          .append(review.isVerified());
         
-        // Set review date if not already set
-        if (review.getReviewDate() == null) {
-            review.setReviewDate(LocalDate.now());
-        }
+        // Optional fields
+        sb.append("|").append(review.getUserName() != null ? review.getUserName() : "");
+        sb.append("|").append(review.getVehicleName() != null ? review.getVehicleName() : "");
+        sb.append("|").append(review.getBookingId() != null ? review.getBookingId() : "");
         
-        return FileUtil.appendLine(REVIEWS_FILE, review.toString());
-    }
-    
-    /**
-     * Updates an existing review in the data store.
-     * 
-     * @param review the review to update
-     * @return true if successful, false otherwise
-     */
-    public boolean updateReview(Review review) {
-        if (review == null || review.getId() == null || review.getId().isEmpty()) {
-            return false;
-        }
-        
-        List<Review> reviews = getAllReviews();
-        boolean found = false;
-        
-        for (int i = 0; i < reviews.size(); i++) {
-            if (reviews.get(i).getId().equals(review.getId())) {
-                reviews.set(i, review);
-                found = true;
-                break;
-            }
-        }
-        
-        if (!found) {
-            return false;
-        }
-        
-        List<String> lines = reviews.stream()
-                .map(Review::toString)
-                .collect(Collectors.toList());
-        
-        return FileUtil.writeAllLines(REVIEWS_FILE, lines);
-    }
-    
-    /**
-     * Deletes a review from the data store.
-     * 
-     * @param id the ID of the review to delete
-     * @return true if successful, false otherwise
-     */
-    public boolean deleteReview(String id) {
-        if (id == null || id.isEmpty()) {
-            return false;
-        }
-        
-        List<Review> reviews = getAllReviews();
-        boolean removed = reviews.removeIf(r -> r.getId().equals(id));
-        
-        if (!removed) {
-            return false;
-        }
-        
-        List<String> lines = reviews.stream()
-                .map(Review::toString)
-                .collect(Collectors.toList());
-        
-        return FileUtil.writeAllLines(REVIEWS_FILE, lines);
-    }
-    
-    /**
-     * Gets all reviews for a vehicle.
-     * 
-     * @param vehicleId the ID of the vehicle
-     * @return a list of reviews for the vehicle
-     */
-    public List<Review> getReviewsByVehicle(String vehicleId) {
-        List<Review> reviews = getAllReviews();
-        
-        return reviews.stream()
-                .filter(r -> r.getVehicleId().equals(vehicleId))
-                .collect(Collectors.toList());
-    }
-    
-    /**
-     * Gets all reviews by a user.
-     * 
-     * @param userId the ID of the user
-     * @return a list of reviews by the user
-     */
-    public List<Review> getReviewsByUser(String userId) {
-        List<Review> reviews = getAllReviews();
-        
-        return reviews.stream()
-                .filter(r -> r.getUserId().equals(userId))
-                .collect(Collectors.toList());
-    }
-    
-    /**
-     * Calculates the average rating for a vehicle.
-     * 
-     * @param vehicleId the ID of the vehicle
-     * @return the average rating, or 0 if there are no reviews
-     */
-    public double getAverageRatingForVehicle(String vehicleId) {
-        List<Review> vehicleReviews = getReviewsByVehicle(vehicleId);
-        
-        if (vehicleReviews.isEmpty()) {
-            return 0;
-        }
-        
-        OptionalDouble average = vehicleReviews.stream()
-                .mapToInt(Review::getRating)
-                .average();
-        
-        return average.isPresent() ? average.getAsDouble() : 0;
-    }
-    
-    /**
-     * Checks if a user has already reviewed a vehicle.
-     * 
-     * @param userId the ID of the user
-     * @param vehicleId the ID of the vehicle
-     * @return true if the user has already reviewed the vehicle, false otherwise
-     */
-    public boolean hasUserReviewedVehicle(String userId, String vehicleId) {
-        List<Review> reviews = getAllReviews();
-        
-        return reviews.stream()
-                .anyMatch(r -> r.getUserId().equals(userId) && r.getVehicleId().equals(vehicleId));
-    }
-    
-    /**
-     * Gets the total number of reviews for a vehicle.
-     * 
-     * @param vehicleId the ID of the vehicle
-     * @return the total number of reviews
-     */
-    public int getReviewCountForVehicle(String vehicleId) {
-        return getReviewsByVehicle(vehicleId).size();
+        return sb.toString();
     }
 }

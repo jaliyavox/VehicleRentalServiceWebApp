@@ -1,6 +1,7 @@
 package com.rentalapp.model;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
@@ -13,7 +14,7 @@ public class Payment implements Serializable {
     
     private String id;
     private String bookingId;
-    private double amount;
+    private BigDecimal amount;
     private LocalDate paymentDate;
     private String paymentMethod;  // CASH, CREDIT_CARD, BANK_TRANSFER, etc.
     private String status;  // PENDING, APPROVED, REJECTED
@@ -26,10 +27,11 @@ public class Payment implements Serializable {
     public Payment() {
         this.paymentDate = LocalDate.now();
         this.status = "PENDING";  // Default status
+        this.amount = BigDecimal.ZERO;
     }
     
     // Parameterized constructor
-    public Payment(String id, String bookingId, double amount, LocalDate paymentDate, 
+    public Payment(String id, String bookingId, BigDecimal amount, LocalDate paymentDate, 
                   String paymentMethod, String status, String transactionId, String paymentSlipPath) {
         this.id = id;
         this.bookingId = bookingId;
@@ -39,6 +41,13 @@ public class Payment implements Serializable {
         this.status = status;
         this.transactionId = transactionId;
         this.paymentSlipPath = paymentSlipPath;
+    }
+    
+    // Legacy constructor for backward compatibility
+    public Payment(String id, String bookingId, double amount, LocalDate paymentDate, 
+                  String paymentMethod, String status, String transactionId, String paymentSlipPath) {
+        this(id, bookingId, new BigDecimal(String.valueOf(amount)), paymentDate, 
+             paymentMethod, status, transactionId, paymentSlipPath);
     }
     
     // Getters and setters
@@ -58,12 +67,17 @@ public class Payment implements Serializable {
         this.bookingId = bookingId;
     }
     
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
     
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
+    }
+    
+    // Legacy method for backward compatibility
+    public void setAmount(double amount) {
+        this.amount = new BigDecimal(String.valueOf(amount));
     }
     
     public LocalDate getPaymentDate() {
@@ -139,7 +153,7 @@ public class Payment implements Serializable {
         return new Payment(
             parts[0],
             parts[1],
-            Double.parseDouble(parts[2]),
+            new BigDecimal(parts[2]),
             LocalDate.parse(parts[3], DATE_FORMATTER),
             parts[4],
             parts[5],

@@ -1,42 +1,60 @@
 package com.rentalapp.model;
 
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Objects;
+import java.util.Date;
 
 /**
- * Represents a review in the rental system.
+ * Represents a vehicle review in the system
  */
-public class Review implements Serializable {
-    private static final long serialVersionUID = 1L;
-    
+public class Review {
     private String id;
     private String userId;
+    private String userName;
     private String vehicleId;
-    private int rating;  // 1-5 stars
+    private String vehicleName;
+    private String bookingId;
+    private int rating;
     private String comment;
-    private LocalDate reviewDate;
+    private Date reviewDate;
+    private boolean verified;
     
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    
-    // Default constructor
+    /**
+     * Default constructor
+     */
     public Review() {
-        this.reviewDate = LocalDate.now();
     }
     
-    // Parameterized constructor
-    public Review(String id, String userId, String vehicleId, int rating, 
-                 String comment, LocalDate reviewDate) {
+    /**
+     * Constructor with essential fields
+     */
+    public Review(String id, String userId, String vehicleId, int rating, String comment, Date reviewDate) {
         this.id = id;
         this.userId = userId;
         this.vehicleId = vehicleId;
         this.rating = rating;
         this.comment = comment;
         this.reviewDate = reviewDate;
+        this.verified = false;
     }
     
-    // Getters and setters
+    /**
+     * Full constructor
+     */
+    public Review(String id, String userId, String userName, String vehicleId, String vehicleName, 
+                  String bookingId, int rating, String comment, Date reviewDate, boolean verified) {
+        this.id = id;
+        this.userId = userId;
+        this.userName = userName;
+        this.vehicleId = vehicleId;
+        this.vehicleName = vehicleName;
+        this.bookingId = bookingId;
+        this.rating = rating;
+        this.comment = comment;
+        this.reviewDate = reviewDate;
+        this.verified = verified;
+    }
+    
+    // Getters and Setters
+    
     public String getId() {
         return id;
     }
@@ -53,6 +71,14 @@ public class Review implements Serializable {
         this.userId = userId;
     }
     
+    public String getUserName() {
+        return userName;
+    }
+    
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+    
     public String getVehicleId() {
         return vehicleId;
     }
@@ -61,15 +87,27 @@ public class Review implements Serializable {
         this.vehicleId = vehicleId;
     }
     
+    public String getVehicleName() {
+        return vehicleName;
+    }
+    
+    public void setVehicleName(String vehicleName) {
+        this.vehicleName = vehicleName;
+    }
+    
+    public String getBookingId() {
+        return bookingId;
+    }
+    
+    public void setBookingId(String bookingId) {
+        this.bookingId = bookingId;
+    }
+    
     public int getRating() {
         return rating;
     }
     
     public void setRating(int rating) {
-        // Validate rating is between 1 and 5
-        if (rating < 1 || rating > 5) {
-            throw new IllegalArgumentException("Rating must be between 1 and 5");
-        }
         this.rating = rating;
     }
     
@@ -81,48 +119,32 @@ public class Review implements Serializable {
         this.comment = comment;
     }
     
-    public LocalDate getReviewDate() {
+    public Date getReviewDate() {
         return reviewDate;
     }
     
-    public void setReviewDate(LocalDate reviewDate) {
+    public void setReviewDate(Date reviewDate) {
         this.reviewDate = reviewDate;
+    }
+    
+    public boolean isVerified() {
+        return verified;
+    }
+    
+    public void setVerified(boolean verified) {
+        this.verified = verified;
     }
     
     @Override
     public String toString() {
-        return id + "," + userId + "," + vehicleId + "," + 
-               rating + "," + comment + "," + 
-               reviewDate.format(DATE_FORMATTER);
-    }
-    
-    // Used for CSV-like storage
-    public static Review fromString(String line) {
-        String[] parts = line.split(",");
-        if (parts.length < 6) {
-            throw new IllegalArgumentException("Invalid review data format");
-        }
-        
-        return new Review(
-            parts[0],
-            parts[1],
-            parts[2],
-            Integer.parseInt(parts[3]),
-            parts[4],
-            LocalDate.parse(parts[5], DATE_FORMATTER)
-        );
-    }
-    
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Review review = (Review) o;
-        return Objects.equals(id, review.id);
-    }
-    
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
+        return "Review{" +
+                "id='" + id + '\'' +
+                ", userId='" + userId + '\'' +
+                ", vehicleId='" + vehicleId + '\'' +
+                ", rating=" + rating +
+                ", comment='" + comment + '\'' +
+                ", reviewDate=" + reviewDate +
+                ", verified=" + verified +
+                '}';
     }
 }

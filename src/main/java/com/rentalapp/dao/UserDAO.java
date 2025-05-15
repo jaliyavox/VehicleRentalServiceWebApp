@@ -1,179 +1,245 @@
 package com.rentalapp.dao;
 
 import com.rentalapp.model.User;
-import com.rentalapp.util.FileUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 /**
- * Data Access Object for User entity.
+ * Data Access Object for User operations
  */
 public class UserDAO {
-    private static final Logger LOGGER = Logger.getLogger(UserDAO.class.getName());
-    private static final String USERS_FILE = "users.txt";
+    
+    private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
+    private static final String USERS_FILE_PATH = "src/main/resources/data/users.txt";
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     
     /**
-     * Retrieves all users from the data store.
-     * 
-     * @return a list of all users
+     * Default constructor
+     */
+    public UserDAO() {
+        // Initialize if needed
+    }
+    
+    /**
+     * Get all users
      */
     public List<User> getAllUsers() {
-        List<String> lines = FileUtil.readAllLines(USERS_FILE);
         List<User> users = new ArrayList<>();
         
-        for (String line : lines) {
-            try {
-                users.add(User.fromString(line));
-            } catch (Exception e) {
-                LOGGER.log(Level.WARNING, "Error parsing user line: " + line, e);
+        try (BufferedReader reader = new BufferedReader(new FileReader(USERS_FILE_PATH))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (!line.trim().isEmpty()) {
+                    User user = parseUserFromLine(line);
+                    if (user != null) {
+                        users.add(user);
+                    }
+                }
             }
+        } catch (IOException e) {
+            logger.error("Error reading users file", e);
         }
         
         return users;
     }
     
     /**
-     * Retrieves a user by ID.
-     * 
-     * @param id the ID of the user to retrieve
-     * @return the user with the specified ID, or null if not found
+     * Get user by ID
+     */
+    public User getById(String id) {
+        try {
+            List<User> users = getAllUsers();
+            
+            for (User user : users) {
+                if (user.getId().equals(id)) {
+                    return user;
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error getting user by ID", e);
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Get user by ID (alias for backward compatibility)
      */
     public User getUserById(String id) {
-        List<User> users = getAllUsers();
-        
-        for (User user : users) {
-            if (user.getId().equals(id)) {
-                return user;
-            }
-        }
-        
-        return null;
+        return getById(id);
     }
     
     /**
-     * Retrieves a user by username.
-     * 
-     * @param username the username of the user to retrieve
-     * @return the user with the specified username, or null if not found
+     * Get user by email
      */
-    public User getUserByUsername(String username) {
-        List<User> users = getAllUsers();
-        
-        for (User user : users) {
-            if (user.getUsername().equals(username)) {
-                return user;
+    public User getByEmail(String email) {
+        try {
+            List<User> users = getAllUsers();
+            
+            for (User user : users) {
+                if (user.getEmail().equalsIgnoreCase(email)) {
+                    return user;
+                }
             }
+        } catch (Exception e) {
+            logger.error("Error getting user by email", e);
         }
         
         return null;
     }
     
     /**
-     * Adds a new user to the data store.
-     * 
-     * @param user the user to add
-     * @return true if successful, false otherwise
+     * Authenticate user with email and password
+     */
+    public User authenticate(String email, String password) {
+        try {
+            User user = getByEmail(email);
+            
+            if (user != null && user.getPassword().equals(password)) {
+                return user;
+            }
+        } catch (Exception e) {
+            logger.error("Error authenticating user", e);
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Authenticate user (alias for backward compatibility)
+     */
+    public User authenticateUser(String email, String password) {
+        return authenticate(email, password);
+    }
+    
+    /**
+     * Check if a username is already taken
+     */
+    public boolean isUsernameTaken(String username) {
+        try {
+            List<User> users = getAllUsers();
+            
+            for (User user : users) {
+                if (user.getUsername().equalsIgnoreCase(username)) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error checking if username is taken", e);
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Add a new user
      */
     public boolean addUser(User user) {
-        if (user == null || user.getId() == null || user.getId().isEmpty()) {
+        if (user.getId() == null || user.getId().trim().isEmpty()) {
+            user.setId(UUID.randomUUID().toString());
+        }
+        
+        try {
+            String userRecord = formatUserToLine(user);
+            Path path = Paths.get(USERS_FILE_PATH);
+            Files.write(path, (userRecord + System.lineSeparator()).getBytes(), 
+                    Files.exists(path) ? java.nio.file.StandardOpenOption.APPEND : java.nio.file.StandardOpenOption.CREATE);
+            
+            return true;
+        } catch (IOException e) {
+            logger.error("Error adding user", e);
             return false;
         }
-        
-        // Check if user with same ID or username already exists
-        if (getUserById(user.getId()) != null || getUserByUsername(user.getUsername()) != null) {
-            return false;
-        }
-        
-        // Set registration date if not already set
-        if (user.getRegistrationDate() == null) {
-            user.setRegistrationDate(LocalDate.now());
-        }
-        
-        return FileUtil.appendLine(USERS_FILE, user.toString());
     }
     
     /**
-     * Updates an existing user in the data store.
-     * 
-     * @param user the user to update
-     * @return true if successful, false otherwise
+     * Update an existing user
      */
     public boolean updateUser(User user) {
-        if (user == null || user.getId() == null || user.getId().isEmpty()) {
-            return false;
-        }
-        
-        List<User> users = getAllUsers();
-        boolean found = false;
-        
-        for (int i = 0; i < users.size(); i++) {
-            if (users.get(i).getId().equals(user.getId())) {
-                // Check if trying to change username to one that already exists for another user
-                if (!users.get(i).getUsername().equals(user.getUsername())) {
-                    User existingUser = getUserByUsername(user.getUsername());
-                    if (existingUser != null && !existingUser.getId().equals(user.getId())) {
-                        return false;
-                    }
+        try {
+            List<User> users = getAllUsers();
+            List<String> lines = new ArrayList<>();
+            
+            for (User existingUser : users) {
+                if (existingUser.getId().equals(user.getId())) {
+                    lines.add(formatUserToLine(user));
+                } else {
+                    lines.add(formatUserToLine(existingUser));
                 }
-                
-                users.set(i, user);
-                found = true;
-                break;
             }
-        }
-        
-        if (!found) {
+            
+            Files.write(Paths.get(USERS_FILE_PATH), String.join(System.lineSeparator(), lines).getBytes());
+            
+            return true;
+        } catch (IOException e) {
+            logger.error("Error updating user", e);
             return false;
         }
-        
-        List<String> lines = users.stream()
-                .map(User::toString)
-                .collect(Collectors.toList());
-        
-        return FileUtil.writeAllLines(USERS_FILE, lines);
     }
     
     /**
-     * Deletes a user from the data store.
-     * 
-     * @param id the ID of the user to delete
-     * @return true if successful, false otherwise
+     * Delete a user by ID
      */
-    public boolean deleteUser(String id) {
-        if (id == null || id.isEmpty()) {
+    public boolean deleteUser(String userId) {
+        try {
+            List<User> users = getAllUsers();
+            List<String> lines = new ArrayList<>();
+            
+            for (User user : users) {
+                if (!user.getId().equals(userId)) {
+                    lines.add(formatUserToLine(user));
+                }
+            }
+            
+            Files.write(Paths.get(USERS_FILE_PATH), String.join(System.lineSeparator(), lines).getBytes());
+            
+            return true;
+        } catch (IOException e) {
+            logger.error("Error deleting user", e);
             return false;
         }
-        
-        List<User> users = getAllUsers();
-        boolean removed = users.removeIf(u -> u.getId().equals(id));
-        
-        if (!removed) {
-            return false;
-        }
-        
-        List<String> lines = users.stream()
-                .map(User::toString)
-                .collect(Collectors.toList());
-        
-        return FileUtil.writeAllLines(USERS_FILE, lines);
     }
     
     /**
-     * Authenticates a user.
-     * 
-     * @param username the username of the user to authenticate
-     * @param password the password to check
-     * @return the authenticated user, or null if authentication failed
+     * Parse a user from a line in the data file
      */
-    public User authenticateUser(String username, String password) {
-        User user = getUserByUsername(username);
+    private User parseUserFromLine(String line) {
+        String[] parts = line.split("\\|");
         
-        if (user != null && user.authenticate(password)) {
+        if (parts.length >= 7) {
+            User user = new User();
+            
+            user.setId(parts[0]);
+            user.setEmail(parts[1]);
+            user.setPassword(parts[2]);
+            user.setFirstName(parts[3]);
+            user.setLastName(parts[4]);
+            user.setPhone(parts[5]);
+            
+            try {
+                if (parts[6] != null && !parts[6].isEmpty()) {
+                    user.setDateOfBirth(LocalDate.parse(parts[6], DATE_FORMATTER));
+                }
+            } catch (Exception e) {
+                logger.error("Error parsing date of birth: " + parts[6], e);
+            }
+            
+            if (parts.length > 7) user.setAddress(parts[7]);
+            if (parts.length > 8) user.setLicenseNumber(parts[8]);
+            if (parts.length > 9) user.setProfilePicture(parts[9]);
+            
             return user;
         }
         
@@ -181,26 +247,26 @@ public class UserDAO {
     }
     
     /**
-     * Checks if a username is already taken.
-     * 
-     * @param username the username to check
-     * @return true if the username is taken, false otherwise
+     * Format a user as a line for the data file
      */
-    public boolean isUsernameTaken(String username) {
-        return getUserByUsername(username) != null;
-    }
-    
-    /**
-     * Gets a list of users by role.
-     * 
-     * @param role the role to filter by
-     * @return a list of users with the specified role
-     */
-    public List<User> getUsersByRole(String role) {
-        List<User> users = getAllUsers();
+    private String formatUserToLine(User user) {
+        StringBuilder sb = new StringBuilder();
         
-        return users.stream()
-                .filter(u -> u.getRole().equalsIgnoreCase(role))
-                .collect(Collectors.toList());
+        sb.append(user.getId()).append("|")
+          .append(user.getEmail()).append("|")
+          .append(user.getPassword()).append("|")
+          .append(user.getFirstName()).append("|")
+          .append(user.getLastName()).append("|")
+          .append(user.getPhone()).append("|");
+        
+        if (user.getDateOfBirth() != null) {
+            sb.append(user.getDateOfBirth().format(DATE_FORMATTER));
+        }
+        
+        sb.append("|").append(user.getAddress() != null ? user.getAddress() : "");
+        sb.append("|").append(user.getLicenseNumber() != null ? user.getLicenseNumber() : "");
+        sb.append("|").append(user.getProfilePicture() != null ? user.getProfilePicture() : "");
+        
+        return sb.toString();
     }
 }

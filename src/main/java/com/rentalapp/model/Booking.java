@@ -1,6 +1,7 @@
 package com.rentalapp.model;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -17,7 +18,7 @@ public class Booking implements Serializable {
     private String vehicleId;
     private LocalDate startDate;
     private LocalDate endDate;
-    private double totalCost;
+    private BigDecimal totalCost;
     private String status;  // PENDING, CONFIRMED, CANCELLED, COMPLETED
     private LocalDate bookingDate;
     
@@ -27,11 +28,12 @@ public class Booking implements Serializable {
     public Booking() {
         this.bookingDate = LocalDate.now();
         this.status = "PENDING";  // Default status
+        this.totalCost = BigDecimal.ZERO;
     }
     
     // Parameterized constructor
     public Booking(String id, String userId, String vehicleId, LocalDate startDate, 
-                   LocalDate endDate, double totalCost, String status, LocalDate bookingDate) {
+                   LocalDate endDate, BigDecimal totalCost, String status, LocalDate bookingDate) {
         this.id = id;
         this.userId = userId;
         this.vehicleId = vehicleId;
@@ -40,6 +42,13 @@ public class Booking implements Serializable {
         this.totalCost = totalCost;
         this.status = status;
         this.bookingDate = bookingDate;
+    }
+    
+    // Legacy constructor for backward compatibility
+    public Booking(String id, String userId, String vehicleId, LocalDate startDate, 
+                   LocalDate endDate, double totalCost, String status, LocalDate bookingDate) {
+        this(id, userId, vehicleId, startDate, endDate, 
+             new BigDecimal(String.valueOf(totalCost)), status, bookingDate);
     }
     
     // Getters and setters
@@ -83,12 +92,17 @@ public class Booking implements Serializable {
         this.endDate = endDate;
     }
     
-    public double getTotalCost() {
+    public BigDecimal getTotalCost() {
         return totalCost;
     }
     
-    public void setTotalCost(double totalCost) {
+    public void setTotalCost(BigDecimal totalCost) {
         this.totalCost = totalCost;
+    }
+    
+    // Legacy method for backward compatibility
+    public void setTotalCost(double totalCost) {
+        this.totalCost = new BigDecimal(String.valueOf(totalCost));
     }
     
     public String getStatus() {
@@ -113,8 +127,13 @@ public class Booking implements Serializable {
     }
     
     // Calculate total cost based on daily rate and duration
+    public void calculateTotalCost(BigDecimal dailyRate) {
+        this.totalCost = dailyRate.multiply(new BigDecimal(getRentalDuration()));
+    }
+    
+    // Legacy method for backward compatibility
     public void calculateTotalCost(double dailyRate) {
-        this.totalCost = dailyRate * getRentalDuration();
+        calculateTotalCost(new BigDecimal(String.valueOf(dailyRate)));
     }
     
     @Override
@@ -139,7 +158,7 @@ public class Booking implements Serializable {
             parts[2],
             LocalDate.parse(parts[3], DATE_FORMATTER),
             LocalDate.parse(parts[4], DATE_FORMATTER),
-            Double.parseDouble(parts[5]),
+            new BigDecimal(parts[5]),
             parts[6],
             LocalDate.parse(parts[7], DATE_FORMATTER)
         );

@@ -18,6 +18,7 @@ import javax.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -192,7 +193,7 @@ public class AddReviewServlet extends HttpServlet {
         review.setVehicleId(vehicleId);
         review.setRating(rating);
         review.setComment(comment);
-        review.setReviewDate(LocalDate.now());
+        review.setReviewDate(new Date()); // Use java.util.Date instead of LocalDate
         
         // Save to the data store
         boolean success = reviewDAO.addReview(review);
