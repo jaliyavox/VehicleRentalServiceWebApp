@@ -24,8 +24,8 @@ import java.util.logging.Logger;
 /**
  * Servlet for processing payment submissions.
  */
-@WebServlet("/payments/process")
-@MultipartConfig(
+@javax.servlet.annotation.WebServlet("/payments/process")
+@javax.servlet.annotation.MultipartConfig(
     fileSizeThreshold = 1024 * 1024, // 1 MB
     maxFileSize = 5 * 1024 * 1024,    // 5 MB
     maxRequestSize = 10 * 1024 * 1024 // 10 MB

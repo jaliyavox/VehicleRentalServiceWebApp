@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 /**
  * Servlet for processing refunds.
  */
-@WebServlet("/admin/payments/refund")
+@javax.servlet.annotation.WebServlet("/admin/payments/refund")
 public class RefundServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(RefundServlet.class.getName());

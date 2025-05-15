@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 /**
  * Servlet for handling user registration.
  */
-@WebServlet("/register")
+@javax.servlet.annotation.WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(RegisterServlet.class.getName());

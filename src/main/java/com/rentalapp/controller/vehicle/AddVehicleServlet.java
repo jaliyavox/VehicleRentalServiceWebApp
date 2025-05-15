@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 /**
  * Servlet for adding a new vehicle to the system.
  */
-@WebServlet("/admin/vehicles/add")
+@javax.servlet.annotation.WebServlet("/admin/vehicles/add")
 public class AddVehicleServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(AddVehicleServlet.class.getName());

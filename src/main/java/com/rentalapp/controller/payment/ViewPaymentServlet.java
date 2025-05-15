@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 /**
  * Servlet for viewing payments.
  */
-@WebServlet({"/payments", "/payments/confirmation", "/payments/details"})
+@javax.servlet.annotation.WebServlet({"/payments", "/payments/confirmation", "/payments/details"})
 public class ViewPaymentServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(ViewPaymentServlet.class.getName());

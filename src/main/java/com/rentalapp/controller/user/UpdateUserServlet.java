@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 /**
  * Servlet for updating user profiles.
  */
-@WebServlet("/profile/edit")
+@javax.servlet.annotation.WebServlet("/profile/edit")
 public class UpdateUserServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(UpdateUserServlet.class.getName());

@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 /**
  * Servlet for adding vehicle reviews.
  */
-@WebServlet("/reviews/add")
+@javax.servlet.annotation.WebServlet("/reviews/add")
 public class AddReviewServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(AddReviewServlet.class.getName());

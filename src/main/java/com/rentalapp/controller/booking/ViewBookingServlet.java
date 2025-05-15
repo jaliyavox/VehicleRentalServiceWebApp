@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 /**
  * Servlet for viewing bookings.
  */
-@WebServlet({"/bookings", "/bookings/details"})
+@javax.servlet.annotation.WebServlet({"/bookings", "/bookings/details"})
 public class ViewBookingServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(ViewBookingServlet.class.getName());

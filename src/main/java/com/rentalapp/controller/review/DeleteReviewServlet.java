@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 /**
  * Servlet for deleting reviews.
  */
-@WebServlet("/reviews/delete")
+@javax.servlet.annotation.WebServlet("/reviews/delete")
 public class DeleteReviewServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(DeleteReviewServlet.class.getName());

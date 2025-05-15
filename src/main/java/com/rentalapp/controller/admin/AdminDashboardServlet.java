@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 /**
  * Servlet for displaying the admin dashboard.
  */
-@WebServlet("/admin/dashboard")
+@javax.servlet.annotation.WebServlet("/admin/dashboard")
 public class AdminDashboardServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(AdminDashboardServlet.class.getName());

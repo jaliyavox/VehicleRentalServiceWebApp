@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 /**
  * Servlet for handling user logout.
  */
-@WebServlet("/logout")
+@javax.servlet.annotation.WebServlet("/logout")
 public class LogoutServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(LogoutServlet.class.getName());

@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 /**
  * Servlet for cancelling bookings.
  */
-@WebServlet("/bookings/cancel")
+@javax.servlet.annotation.WebServlet("/bookings/cancel")
 public class CancelBookingServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(CancelBookingServlet.class.getName());

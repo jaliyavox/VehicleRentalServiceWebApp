@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 /**
  * Servlet for retrieving and displaying vehicle information.
  */
-@WebServlet({"/vehicles", "/vehicles/details"})
+@javax.servlet.annotation.WebServlet({"/vehicles", "/vehicles/details"})
 public class GetVehicleServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(GetVehicleServlet.class.getName());

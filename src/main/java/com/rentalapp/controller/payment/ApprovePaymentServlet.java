@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 /**
  * Servlet for approving payments.
  */
-@WebServlet("/admin/payments/approve")
+@javax.servlet.annotation.WebServlet("/admin/payments/approve")
 public class ApprovePaymentServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(ApprovePaymentServlet.class.getName());

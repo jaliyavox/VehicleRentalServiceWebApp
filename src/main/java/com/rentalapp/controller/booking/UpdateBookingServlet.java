@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 /**
  * Servlet for updating existing bookings.
  */
-@WebServlet("/bookings/update")
+@javax.servlet.annotation.WebServlet("/bookings/update")
 public class UpdateBookingServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(UpdateBookingServlet.class.getName());

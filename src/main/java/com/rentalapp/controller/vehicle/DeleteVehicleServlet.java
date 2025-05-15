@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 /**
  * Servlet for deleting a vehicle from the system.
  */
-@WebServlet("/admin/vehicles/delete")
+@javax.servlet.annotation.WebServlet("/admin/vehicles/delete")
 public class DeleteVehicleServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(DeleteVehicleServlet.class.getName());

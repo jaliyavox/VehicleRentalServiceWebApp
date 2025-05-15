@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 /**
  * Servlet for managing users in the admin panel.
  */
-@WebServlet({"/admin/users", "/admin/users/edit", "/admin/users/delete"})
+@javax.servlet.annotation.WebServlet({"/admin/users", "/admin/users/edit", "/admin/users/delete"})
 public class ManageUsersServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(ManageUsersServlet.class.getName());

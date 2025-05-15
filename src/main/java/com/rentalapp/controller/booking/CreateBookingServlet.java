@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 /**
  * Servlet for creating new bookings.
  */
-@WebServlet("/bookings/create")
+@javax.servlet.annotation.WebServlet("/bookings/create")
 public class CreateBookingServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(CreateBookingServlet.class.getName());

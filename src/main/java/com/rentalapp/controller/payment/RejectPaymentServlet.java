@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 /**
  * Servlet for rejecting payments.
  */
-@WebServlet("/admin/payments/reject")
+@javax.servlet.annotation.WebServlet("/admin/payments/reject")
 public class RejectPaymentServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(RejectPaymentServlet.class.getName());

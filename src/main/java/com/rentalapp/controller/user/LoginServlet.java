@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 /**
  * Servlet for handling user login.
  */
-@WebServlet("/login")
+@javax.servlet.annotation.WebServlet("/login")
 public class LoginServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(LoginServlet.class.getName());
