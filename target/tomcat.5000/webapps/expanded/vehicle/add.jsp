@@ -18,7 +18,7 @@
                         </div>
                     </c:if>
                     
-                    <form action="${pageContext.request.contextPath}/admin/vehicles/add" method="post" class="row g-3">
+                    <form action="${pageContext.request.contextPath}/admin/vehicles/add" method="post" enctype="multipart/form-data" class="row g-3">
                         <div class="col-md-6">
                             <label for="type" class="form-label">Vehicle Type*</label>
                             <select id="type" name="type" class="form-select ${not empty typeError ? 'is-invalid' : ''}">

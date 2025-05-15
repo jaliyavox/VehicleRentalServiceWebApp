@@ -38,5 +38,6 @@
 /home/runner/workspace/src/main/java/com/rentalapp/util/FileUtil.java
 /home/runner/workspace/src/main/java/com/rentalapp/controller/admin/AdminLoginServlet.java
 /home/runner/workspace/src/main/java/com/rentalapp/controller/user/LogoutServlet.java
+/home/runner/workspace/src/main/java/com/rentalapp/controller/admin/ManageVehiclesServlet.java
 /home/runner/workspace/src/main/java/com/rentalapp/dao/BookingDAO.java
 /home/runner/workspace/src/main/java/com/rentalapp/controller/admin/ManageUsersServlet.java

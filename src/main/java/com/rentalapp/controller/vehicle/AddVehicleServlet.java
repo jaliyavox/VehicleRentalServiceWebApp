@@ -6,20 +6,29 @@ import com.rentalapp.util.FileUtil;
 import com.rentalapp.util.ValidationUtil;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 /**
  * Servlet for adding a new vehicle to the system.
  */
 @javax.servlet.annotation.WebServlet("/admin/vehicles/add")
+@MultipartConfig(
+    fileSizeThreshold = 1024 * 1024, // 1 MB
+    maxFileSize = 1024 * 1024 * 10,  // 10 MB
+    maxRequestSize = 1024 * 1024 * 15 // 15 MB
+)
 public class AddVehicleServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(AddVehicleServlet.class.getName());
