@@ -1,0 +1,33 @@
+modules = ["java", "java-17", "openjdk-17"]
+
+[nix]
+channel = "stable-24_05"
+packages = ["maven", "jdk"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Vehicle Rental Application Server"
+
+[[workflows.workflow]]
+name = "Vehicle Rental Application Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "mkdir -p src/main/resources/data src/main/resources/uploads/payment-slips && mvn clean package && java -jar target/dependency/webapp-runner.jar --port 5000 target/*.war"
+waitForPort = 5000
+
+[deployment]
+run = ["sh", "-c", "mkdir -p src/main/resources/data src/main/resources/uploads/payment-slips && mvn clean package && java -jar target/dependency/webapp-runner.jar --port 5000 target/*.war"]
+
+[[ports]]
+localPort = 5000
+externalPort = 80

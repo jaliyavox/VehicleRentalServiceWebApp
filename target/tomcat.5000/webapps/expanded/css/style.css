@@ -1,0 +1,153 @@
+/* Global Styles */
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+.required::after {
+    content: " *";
+    color: red;
+}
+
+/* Header and Navigation */
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.4rem;
+}
+
+/* Dashboard Stats */
+.dashboard-stat {
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Vehicle Cards */
+.vehicle-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.vehicle-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+}
+
+.vehicle-card .card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+
+.vehicle-price {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #28a745;
+}
+
+.vehicle-info {
+    color: #6c757d;
+}
+
+/* Vehicle Details Page */
+.vehicle-details .vehicle-image {
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.vehicle-spec {
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+/* Reviews */
+.review-card {
+    padding: 10px 0;
+}
+
+.review-author {
+    font-weight: 600;
+}
+
+.review-date {
+    color: #6c757d;
+}
+
+.review-comment {
+    font-style: italic;
+}
+
+/* Booking Status */
+.booking-status {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.booking-status.pending {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.booking-status.confirmed {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.booking-status.cancelled {
+    background-color: #dc3545;
+    color: white;
+}
+
+.booking-status.completed {
+    background-color: #198754;
+    color: white;
+}
+
+/* Admin Tables */
+.admin-table th {
+    background-color: #f8f9fa;
+}
+
+.action-buttons {
+    white-space: nowrap;
+}
+
+.action-buttons .btn {
+    margin-right: 5px;
+}
+
+/* Forms */
+.form-control:focus, .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+}

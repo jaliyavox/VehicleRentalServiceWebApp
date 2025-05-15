@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         version="4.0">
+
+    <display-name>Vehicle Rental Application</display-name>
+    
+    <!-- Session Configuration -->
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
+    
+    <!-- Welcome File List -->
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+    
+    <!-- Error Pages -->
+    <error-page>
+        <error-code>404</error-code>
+        <location>/error/404.jsp</location>
+    </error-page>
+    
+    <error-page>
+        <error-code>500</error-code>
+        <location>/error/500.jsp</location>
+    </error-page>
+    
+    <!-- Initialize the application's data directories -->
+    <listener>
+        <listener-class>com.rentalapp.listener.ApplicationInitializer</listener-class>
+    </listener>
+    
+    <!-- Filter to check if user is logged in for protected resources -->
+    <filter>
+        <filter-name>AuthenticationFilter</filter-name>
+        <filter-class>com.rentalapp.filter.AuthenticationFilter</filter-class>
+    </filter>
+    
+    <filter-mapping>
+        <filter-name>AuthenticationFilter</filter-name>
+        <url-pattern>/profile/*</url-pattern>
+        <url-pattern>/bookings/*</url-pattern>
+        <url-pattern>/payments/*</url-pattern>
+        <url-pattern>/reviews/add</url-pattern>
+    </filter-mapping>
+    
+    <!-- Filter to check if admin is logged in for admin resources -->
+    <filter>
+        <filter-name>AdminAuthenticationFilter</filter-name>
+        <filter-class>com.rentalapp.filter.AdminAuthenticationFilter</filter-class>
+    </filter>
+    
+    <filter-mapping>
+        <filter-name>AdminAuthenticationFilter</filter-name>
+        <url-pattern>/admin/*</url-pattern>
+        <url-pattern>/admin/vehicles/*</url-pattern>
+        <url-pattern>/admin/users/*</url-pattern>
+        <url-pattern>/admin/payments/*</url-pattern>
+    </filter-mapping>
+    
+</web-app>
