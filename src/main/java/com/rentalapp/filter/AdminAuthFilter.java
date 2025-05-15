@@ -39,8 +39,8 @@ public class AdminAuthFilter implements Filter {
         // Get current URI
         String uri = request.getRequestURI();
         
-        // Allow access to login page without authentication
-        if (uri.endsWith("/admin/login")) {
+        // Allow access to login and register pages without authentication
+        if (uri.endsWith("/admin/login") || uri.endsWith("/admin/register")) {
             chain.doFilter(request, response);
             return;
         }
