@@ -4,9 +4,10 @@ com/rentalapp/model/User.class
 com/rentalapp/controller/review/ViewReviewsServlet.class
 com/rentalapp/controller/admin/ManageUsersServlet.class
 com/rentalapp/controller/payment/RejectPaymentServlet.class
-com/rentalapp/controller/payment/RefundServlet.class
 com/rentalapp/controller/admin/AdminDashboardServlet.class
+com/rentalapp/controller/payment/RefundServlet.class
 com/rentalapp/controller/payment/ProcessPaymentServlet.class
+com/rentalapp/controller/admin/AdminRegisterServlet.class
 com/rentalapp/controller/user/LogoutServlet.class
 com/rentalapp/controller/user/LoginServlet.class
 com/rentalapp/dao/VehicleDAO.class

@@ -39,6 +39,7 @@
                 
                 <div class="text-center mt-4">
                     <p>
+                        <a href="${pageContext.request.contextPath}/admin/register">Register New Admin</a> | 
                         <a href="${pageContext.request.contextPath}/login">Back to User Login</a> | 
                         <a href="${pageContext.request.contextPath}/">Back to Home</a>
                     </p>

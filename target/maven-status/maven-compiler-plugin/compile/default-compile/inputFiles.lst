@@ -3,6 +3,7 @@
 /home/runner/workspace/src/main/java/com/rentalapp/controller/booking/CreateBookingServlet.java
 /home/runner/workspace/src/main/java/com/rentalapp/controller/vehicle/UpdateVehicleServlet.java
 /home/runner/workspace/src/main/java/com/rentalapp/model/User.java
+/home/runner/workspace/src/main/java/com/rentalapp/controller/admin/AdminRegisterServlet.java
 /home/runner/workspace/src/main/java/com/rentalapp/model/Payment.java
 /home/runner/workspace/src/main/java/com/rentalapp/controller/review/DeleteReviewServlet.java
 /home/runner/workspace/src/main/java/com/rentalapp/controller/user/UpdateUserServlet.java
