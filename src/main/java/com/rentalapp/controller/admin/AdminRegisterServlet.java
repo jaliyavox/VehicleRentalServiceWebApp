@@ -129,6 +129,7 @@ public class AdminRegisterServlet extends HttpServlet {
             session.setAttribute("adminId", admin.getId());
             session.setAttribute("adminUsername", admin.getUsername());
             session.setAttribute("adminRole", admin.getRole());
+            session.setAttribute("isAdmin", true);
             
             // Redirect to dashboard
             LOGGER.log(Level.INFO, "New admin registered and logged in: {0}", username);

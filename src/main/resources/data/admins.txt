@@ -1,1 +1,2 @@
-admin1|admin|admin123|System Administrator|admin@rentalapp.com|ADMIN
+admin1|admin|admin123|System Administrator|admin@rentalapp.com|ADMIN571dfeec-963a-4568-b511-64c45a29dc24|Jaliya|Jaliya123#|Jaliya Hettiarachchi|jaliya@gmail.com|ADMIN
+1a8ce630-af4a-4069-a520-efc9c3ec02f6|Jaliya|Jaliya123#|Jaliya Hettiarachchi|dc@hgg.gfcgh|ADMIN

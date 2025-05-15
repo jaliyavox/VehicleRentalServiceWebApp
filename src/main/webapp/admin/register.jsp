@@ -67,15 +67,7 @@
                                 <div class="invalid-feedback">${emailError}</div>
                             </div>
                             
-                            <div class="mb-3">
-                                <label for="role" class="form-label">Role</label>
-                                <select class="form-select ${not empty roleError ? 'is-invalid' : ''}" 
-                                    id="role" name="role">
-                                    <option value="ADMIN" ${role == 'ADMIN' ? 'selected' : ''}>Admin</option>
-                                    <option value="SUPER_ADMIN" ${role == 'SUPER_ADMIN' ? 'selected' : ''}>Super Admin</option>
-                                </select>
-                                <div class="invalid-feedback">${roleError}</div>
-                            </div>
+                            <input type="hidden" name="role" value="ADMIN">
                             
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-primary">Register</button>

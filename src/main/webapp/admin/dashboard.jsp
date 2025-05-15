@@ -14,7 +14,7 @@
                 <p class="lead mb-0">Manage your vehicle rental business</p>
             </div>
             <div class="col-md-4 text-md-end">
-                <span>Welcome, ${fullName}</span>
+                <span>Welcome, ${adminUsername}</span>
                 <a href="${pageContext.request.contextPath}/admin/logout" class="btn btn-outline-light ms-3">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>

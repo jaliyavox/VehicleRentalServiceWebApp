@@ -76,9 +76,9 @@ public class AdminLoginServlet extends HttpServlet {
             if (admin != null) {
                 // Successful login, create admin session
                 HttpSession session = request.getSession();
-                session.setAttribute("userId", admin.getId());
-                session.setAttribute("username", admin.getUsername());
-                session.setAttribute("fullName", admin.getFullName());
+                session.setAttribute("adminId", admin.getId());
+                session.setAttribute("adminUsername", admin.getUsername());
+                session.setAttribute("adminRole", admin.getRole());
                 session.setAttribute("isAdmin", true);
                 
                 logger.info("Admin login successful: {}", username);
