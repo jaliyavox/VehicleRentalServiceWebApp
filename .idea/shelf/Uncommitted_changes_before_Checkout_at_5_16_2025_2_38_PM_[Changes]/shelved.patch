@@ -1,0 +1,599 @@
+Index: src/main/java/com/example/vehiclerentalservicewebapp/model/User.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.vehiclerentalservicewebapp.model;\r\n\r\nimport java.time.LocalDateTime;\r\nimport java.time.format.DateTimeFormatter;\r\nimport java.util.Objects;\r\n\r\n/**\r\n * User class represents a user in the vehicle rental system.\r\n * It stores personal information and credentials for authentication.\r\n */\r\npublic class User {\r\n    private String id;\r\n    private String username;\r\n    private String password;\r\n    private String email;\r\n    private String fullName;\r\n    private String phoneNumber;\r\n    private LocalDateTime registrationDate;\r\n    private boolean isAdmin;\r\n\r\n    // Default constructor\r\n    public User() {\r\n        this.registrationDate = LocalDateTime.now();\r\n        this.isAdmin = false;\r\n    }\r\n\r\n    /**\r\n     * Constructor with all fields\r\n     *\r\n     * @param id Unique identifier for the user\r\n     * @param username Username chosen by the user\r\n     * @param password Hashed password for security\r\n     * @param email User's email address\r\n     * @param fullName User's full name\r\n     * @param phoneNumber User's contact number\r\n     * @param registrationDate Date when the user registered\r\n     * @param isAdmin Flag indicating if user has administrative privileges\r\n     */\r\n    public User(String id, String username, String password, String email, String fullName,\r\n                String phoneNumber, LocalDateTime registrationDate, boolean isAdmin) {\r\n        this.id = id;\r\n        this.username = username;\r\n        this.password = password;\r\n        this.email = email;\r\n        this.fullName = fullName;\r\n        this.phoneNumber = phoneNumber;\r\n        this.registrationDate = registrationDate;\r\n        this.isAdmin = isAdmin;\r\n    }\r\n\r\n    /**\r\n     * Constructor with essential fields, generates current timestamp for registrationDate\r\n     *\r\n     * @param id Unique identifier for the user\r\n     * @param username Username chosen by the user\r\n     * @param password Hashed password for security\r\n     * @param email User's email address\r\n     * @param fullName User's full name\r\n     * @param phoneNumber User's contact number\r\n     */\r\n    public User(String id, String username, String password, String email, String fullName, String phoneNumber) {\r\n        this(id, username, password, email, fullName, phoneNumber, LocalDateTime.now(), false);\r\n    }\r\n\r\n    // Getters and Setters\r\n\r\n    public String getId() {\r\n        return id;\r\n    }\r\n\r\n    public void setId(String id) {\r\n        this.id = id;\r\n    }\r\n\r\n    public String getUsername() {\r\n        return username;\r\n    }\r\n\r\n    public void setUsername(String username) {\r\n        this.username = username;\r\n    }\r\n\r\n    public String getPassword() {\r\n        return password;\r\n    }\r\n\r\n    public void setPassword(String password) {\r\n        this.password = password;\r\n    }\r\n\r\n    public String getEmail() {\r\n        return email;\r\n    }\r\n\r\n    public void setEmail(String email) {\r\n        this.email = email;\r\n    }\r\n\r\n    public String getFullName() {\r\n        return fullName;\r\n    }\r\n\r\n    public void setFullName(String fullName) {\r\n        this.fullName = fullName;\r\n    }\r\n\r\n    public String getPhoneNumber() {\r\n        return phoneNumber;\r\n    }\r\n\r\n    public void setPhoneNumber(String phoneNumber) {\r\n        this.phoneNumber = phoneNumber;\r\n    }\r\n\r\n    public LocalDateTime getRegistrationDate() {\r\n        return registrationDate;\r\n    }\r\n\r\n    public void setRegistrationDate(LocalDateTime registrationDate) {\r\n        this.registrationDate = registrationDate;\r\n    }\r\n\r\n    public boolean isAdmin() {\r\n        return isAdmin;\r\n    }\r\n\r\n    public void setAdmin(boolean admin) {\r\n        isAdmin = admin;\r\n    }\r\n\r\n    /**\r\n     * Convert the user object to a string representation for storage in a text file\r\n     * Uses pipe character as delimiter for easy parsing\r\n     *\r\n     * @return String representation of the user\r\n     */\r\n    public String toFileString() {\r\n        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;\r\n        return String.join(\"|\",\r\n                id,\r\n                username,\r\n                password,\r\n                email,\r\n                fullName,\r\n                phoneNumber,\r\n                registrationDate.format(formatter),\r\n                String.valueOf(isAdmin)\r\n        );\r\n    }\r\n\r\n    /**\r\n     * Create a User object from a string representation (read from file)\r\n     *\r\n     * @param fileString The string representation of a user from the text file\r\n     * @return A new User object\r\n     */\r\n    public static User fromFileString(String fileString) {\r\n        String[] parts = fileString.split(\"\\\\|\");\r\n        if (parts.length < 8) {\r\n            throw new IllegalArgumentException(\"Invalid user data format\");\r\n        }\r\n\r\n        User user = new User();\r\n        user.setId(parts[0]);\r\n        user.setUsername(parts[1]);\r\n        user.setPassword(parts[2]);\r\n        user.setEmail(parts[3]);\r\n        user.setFullName(parts[4]);\r\n        user.setPhoneNumber(parts[5]);\r\n        user.setRegistrationDate(LocalDateTime.parse(parts[6], DateTimeFormatter.ISO_LOCAL_DATE_TIME));\r\n        user.setAdmin(Boolean.parseBoolean(parts[7]));\r\n\r\n        return user;\r\n    }\r\n\r\n    @Override\r\n    public String toString() {\r\n        return \"User{\" +\r\n                \"id='\" + id + '\\'' +\r\n                \", username='\" + username + '\\'' +\r\n                \", email='\" + email + '\\'' +\r\n                \", fullName='\" + fullName + '\\'' +\r\n                \", phoneNumber='\" + phoneNumber + '\\'' +\r\n                \", registrationDate=\" + registrationDate +\r\n                \", isAdmin=\" + isAdmin +\r\n                '}';\r\n    }\r\n\r\n    @Override\r\n    public boolean equals(Object o) {\r\n        if (this == o) return true;\r\n        if (o == null || getClass() != o.getClass()) return false;\r\n        User user = (User) o;\r\n        return isAdmin == user.isAdmin &&\r\n                Objects.equals(id, user.id) &&\r\n                Objects.equals(username, user.username) &&\r\n                Objects.equals(password, user.password) &&\r\n                Objects.equals(email, user.email) &&\r\n                Objects.equals(fullName, user.fullName) &&\r\n                Objects.equals(phoneNumber, user.phoneNumber) &&\r\n                Objects.equals(registrationDate, user.registrationDate);\r\n    }\r\n\r\n    @Override\r\n    public int hashCode() {\r\n        return Objects.hash(id, username, password, email, fullName, phoneNumber, registrationDate, isAdmin);\r\n    }\r\n}
+===================================================================
+diff --git a/src/main/java/com/example/vehiclerentalservicewebapp/model/User.java b/src/main/java/com/example/vehiclerentalservicewebapp/model/User.java
+--- a/src/main/java/com/example/vehiclerentalservicewebapp/model/User.java	(revision 0c2dda8bb6abf328b17efbefc3ae601a4f8efa2e)
++++ b/src/main/java/com/example/vehiclerentalservicewebapp/model/User.java	(date 1747386168407)
+@@ -1,208 +1,0 @@
+-package com.example.vehiclerentalservicewebapp.model;
+-
+-import java.time.LocalDateTime;
+-import java.time.format.DateTimeFormatter;
+-import java.util.Objects;
+-
+-/**
+- * User class represents a user in the vehicle rental system.
+- * It stores personal information and credentials for authentication.
+- */
+-public class User {
+-    private String id;
+-    private String username;
+-    private String password;
+-    private String email;
+-    private String fullName;
+-    private String phoneNumber;
+-    private LocalDateTime registrationDate;
+-    private boolean isAdmin;
+-
+-    // Default constructor
+-    public User() {
+-        this.registrationDate = LocalDateTime.now();
+-        this.isAdmin = false;
+-    }
+-
+-    /**
+-     * Constructor with all fields
+-     *
+-     * @param id Unique identifier for the user
+-     * @param username Username chosen by the user
+-     * @param password Hashed password for security
+-     * @param email User's email address
+-     * @param fullName User's full name
+-     * @param phoneNumber User's contact number
+-     * @param registrationDate Date when the user registered
+-     * @param isAdmin Flag indicating if user has administrative privileges
+-     */
+-    public User(String id, String username, String password, String email, String fullName,
+-                String phoneNumber, LocalDateTime registrationDate, boolean isAdmin) {
+-        this.id = id;
+-        this.username = username;
+-        this.password = password;
+-        this.email = email;
+-        this.fullName = fullName;
+-        this.phoneNumber = phoneNumber;
+-        this.registrationDate = registrationDate;
+-        this.isAdmin = isAdmin;
+-    }
+-
+-    /**
+-     * Constructor with essential fields, generates current timestamp for registrationDate
+-     *
+-     * @param id Unique identifier for the user
+-     * @param username Username chosen by the user
+-     * @param password Hashed password for security
+-     * @param email User's email address
+-     * @param fullName User's full name
+-     * @param phoneNumber User's contact number
+-     */
+-    public User(String id, String username, String password, String email, String fullName, String phoneNumber) {
+-        this(id, username, password, email, fullName, phoneNumber, LocalDateTime.now(), false);
+-    }
+-
+-    // Getters and Setters
+-
+-    public String getId() {
+-        return id;
+-    }
+-
+-    public void setId(String id) {
+-        this.id = id;
+-    }
+-
+-    public String getUsername() {
+-        return username;
+-    }
+-
+-    public void setUsername(String username) {
+-        this.username = username;
+-    }
+-
+-    public String getPassword() {
+-        return password;
+-    }
+-
+-    public void setPassword(String password) {
+-        this.password = password;
+-    }
+-
+-    public String getEmail() {
+-        return email;
+-    }
+-
+-    public void setEmail(String email) {
+-        this.email = email;
+-    }
+-
+-    public String getFullName() {
+-        return fullName;
+-    }
+-
+-    public void setFullName(String fullName) {
+-        this.fullName = fullName;
+-    }
+-
+-    public String getPhoneNumber() {
+-        return phoneNumber;
+-    }
+-
+-    public void setPhoneNumber(String phoneNumber) {
+-        this.phoneNumber = phoneNumber;
+-    }
+-
+-    public LocalDateTime getRegistrationDate() {
+-        return registrationDate;
+-    }
+-
+-    public void setRegistrationDate(LocalDateTime registrationDate) {
+-        this.registrationDate = registrationDate;
+-    }
+-
+-    public boolean isAdmin() {
+-        return isAdmin;
+-    }
+-
+-    public void setAdmin(boolean admin) {
+-        isAdmin = admin;
+-    }
+-
+-    /**
+-     * Convert the user object to a string representation for storage in a text file
+-     * Uses pipe character as delimiter for easy parsing
+-     *
+-     * @return String representation of the user
+-     */
+-    public String toFileString() {
+-        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+-        return String.join("|",
+-                id,
+-                username,
+-                password,
+-                email,
+-                fullName,
+-                phoneNumber,
+-                registrationDate.format(formatter),
+-                String.valueOf(isAdmin)
+-        );
+-    }
+-
+-    /**
+-     * Create a User object from a string representation (read from file)
+-     *
+-     * @param fileString The string representation of a user from the text file
+-     * @return A new User object
+-     */
+-    public static User fromFileString(String fileString) {
+-        String[] parts = fileString.split("\\|");
+-        if (parts.length < 8) {
+-            throw new IllegalArgumentException("Invalid user data format");
+-        }
+-
+-        User user = new User();
+-        user.setId(parts[0]);
+-        user.setUsername(parts[1]);
+-        user.setPassword(parts[2]);
+-        user.setEmail(parts[3]);
+-        user.setFullName(parts[4]);
+-        user.setPhoneNumber(parts[5]);
+-        user.setRegistrationDate(LocalDateTime.parse(parts[6], DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+-        user.setAdmin(Boolean.parseBoolean(parts[7]));
+-
+-        return user;
+-    }
+-
+-    @Override
+-    public String toString() {
+-        return "User{" +
+-                "id='" + id + '\'' +
+-                ", username='" + username + '\'' +
+-                ", email='" + email + '\'' +
+-                ", fullName='" + fullName + '\'' +
+-                ", phoneNumber='" + phoneNumber + '\'' +
+-                ", registrationDate=" + registrationDate +
+-                ", isAdmin=" + isAdmin +
+-                '}';
+-    }
+-
+-    @Override
+-    public boolean equals(Object o) {
+-        if (this == o) return true;
+-        if (o == null || getClass() != o.getClass()) return false;
+-        User user = (User) o;
+-        return isAdmin == user.isAdmin &&
+-                Objects.equals(id, user.id) &&
+-                Objects.equals(username, user.username) &&
+-                Objects.equals(password, user.password) &&
+-                Objects.equals(email, user.email) &&
+-                Objects.equals(fullName, user.fullName) &&
+-                Objects.equals(phoneNumber, user.phoneNumber) &&
+-                Objects.equals(registrationDate, user.registrationDate);
+-    }
+-
+-    @Override
+-    public int hashCode() {
+-        return Objects.hash(id, username, password, email, fullName, phoneNumber, registrationDate, isAdmin);
+-    }
+-}
+\ No newline at end of file
+Index: src/main/java/com/example/vehiclerentalservicewebapp/model/Review.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.vehiclerentalservicewebapp.model;\r\n\r\nimport java.time.LocalDateTime;\r\nimport java.time.format.DateTimeFormatter;\r\nimport java.util.Objects;\r\n\r\n/**\r\n * Review class represents a user review for a vehicle in the rental system.\r\n * It stores information about the user who wrote the review, the vehicle being reviewed,\r\n * the rating given, comments, and when the review was submitted.\r\n */\r\npublic class Review {\r\n    private String id;\r\n    private String userId;\r\n    private String vehicleId;\r\n    private int rating;\r\n    private String comment;\r\n    private LocalDateTime reviewDate;\r\n\r\n    // Default constructor\r\n    public Review() {\r\n        this.reviewDate = LocalDateTime.now();\r\n    }\r\n\r\n    /**\r\n     * Constructor with all fields\r\n     *\r\n     * @param id Unique identifier for the review\r\n     * @param userId ID of the user who submitted the review\r\n     * @param vehicleId ID of the vehicle being reviewed\r\n     * @param rating Rating given by the user (typically 1-5)\r\n     * @param comment Text comment provided by the user\r\n     * @param reviewDate Date and time when the review was submitted\r\n     */\r\n    public Review(String id, String userId, String vehicleId, int rating, String comment, LocalDateTime reviewDate) {\r\n        this.id = id;\r\n        this.userId = userId;\r\n        this.vehicleId = vehicleId;\r\n        this.rating = rating;\r\n        this.comment = comment;\r\n        this.reviewDate = reviewDate;\r\n    }\r\n\r\n    /**\r\n     * Constructor with essential fields, generates current timestamp for reviewDate\r\n     *\r\n     * @param id Unique identifier for the review\r\n     * @param userId ID of the user who submitted the review\r\n     * @param vehicleId ID of the vehicle being reviewed\r\n     * @param rating Rating given by the user (typically 1-5)\r\n     * @param comment Text comment provided by the user\r\n     */\r\n    public Review(String id, String userId, String vehicleId, int rating, String comment) {\r\n        this(id, userId, vehicleId, rating, comment, LocalDateTime.now());\r\n    }\r\n\r\n    // Getters and Setters\r\n\r\n    /**\r\n     * Get the review's unique identifier\r\n     *\r\n     * @return The review ID\r\n     */\r\n    public String getId() {\r\n        return id;\r\n    }\r\n\r\n    /**\r\n     * Set the review's unique identifier\r\n     *\r\n     * @param id The review ID to set\r\n     */\r\n    public void setId(String id) {\r\n        this.id = id;\r\n    }\r\n\r\n    /**\r\n     * Get the ID of the user who submitted this review\r\n     *\r\n     * @return The user ID\r\n     */\r\n    public String getUserId() {\r\n        return userId;\r\n    }\r\n\r\n    /**\r\n     * Set the ID of the user who submitted this review\r\n     *\r\n     * @param userId The user ID to set\r\n     */\r\n    public void setUserId(String userId) {\r\n        this.userId = userId;\r\n    }\r\n\r\n    /**\r\n     * Get the ID of the vehicle being reviewed\r\n     *\r\n     * @return The vehicle ID\r\n     */\r\n    public String getVehicleId() {\r\n        return vehicleId;\r\n    }\r\n\r\n    /**\r\n     * Set the ID of the vehicle being reviewed\r\n     *\r\n     * @param vehicleId The vehicle ID to set\r\n     */\r\n    public void setVehicleId(String vehicleId) {\r\n        this.vehicleId = vehicleId;\r\n    }\r\n\r\n    /**\r\n     * Get the rating given by the user\r\n     *\r\n     * @return The rating value\r\n     */\r\n    public int getRating() {\r\n        return rating;\r\n    }\r\n\r\n    /**\r\n     * Set the rating given by the user\r\n     *\r\n     * @param rating The rating value to set (typically 1-5)\r\n     * @throws IllegalArgumentException if rating is less than 1 or greater than 5\r\n     */\r\n    public void setRating(int rating) {\r\n        if (rating < 1 || rating > 5) {\r\n            throw new IllegalArgumentException(\"Rating must be between 1 and 5\");\r\n        }\r\n        this.rating = rating;\r\n    }\r\n\r\n    /**\r\n     * Get the comment provided by the user\r\n     *\r\n     * @return The comment text\r\n     */\r\n    public String getComment() {\r\n        return comment;\r\n    }\r\n\r\n    /**\r\n     * Set the comment provided by the user\r\n     *\r\n     * @param comment The comment text to set\r\n     */\r\n    public void setComment(String comment) {\r\n        this.comment = comment;\r\n    }\r\n\r\n    /**\r\n     * Get the date and time when the review was submitted\r\n     *\r\n     * @return The review date\r\n     */\r\n    public LocalDateTime getReviewDate() {\r\n        return reviewDate;\r\n    }\r\n\r\n    /**\r\n     * Set the date and time when the review was submitted\r\n     *\r\n     * @param reviewDate The review date to set\r\n     */\r\n    public void setReviewDate(LocalDateTime reviewDate) {\r\n        this.reviewDate = reviewDate;\r\n    }\r\n\r\n    /**\r\n     * Convert the review object to a string representation for storage in a text file\r\n     * Uses pipe character as delimiter for easy parsing\r\n     *\r\n     * @return String representation of the review\r\n     */\r\n    public String toFileString() {\r\n        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;\r\n        return String.join(\"|\",\r\n                id,\r\n                userId,\r\n                vehicleId,\r\n                String.valueOf(rating),\r\n                comment,\r\n                reviewDate.format(formatter)\r\n        );\r\n    }\r\n\r\n    /**\r\n     * Create a Review object from a string representation (read from file)\r\n     *\r\n     * @param fileString The string representation of a review from the text file\r\n     * @return A new Review object\r\n     */\r\n    public static Review fromFileString(String fileString) {\r\n        String[] parts = fileString.split(\"\\\\|\");\r\n        if (parts.length < 6) {\r\n            throw new IllegalArgumentException(\"Invalid review data format\");\r\n        }\r\n\r\n        Review review = new Review();\r\n        review.setId(parts[0]);\r\n        review.setUserId(parts[1]);\r\n        review.setVehicleId(parts[2]);\r\n        review.setRating(Integer.parseInt(parts[3]));\r\n        review.setComment(parts[4]);\r\n        review.setReviewDate(LocalDateTime.parse(parts[5], DateTimeFormatter.ISO_LOCAL_DATE_TIME));\r\n\r\n        return review;\r\n    }\r\n\r\n    @Override\r\n    public String toString() {\r\n        return \"Review{\" +\r\n                \"id='\" + id + '\\'' +\r\n                \", userId='\" + userId + '\\'' +\r\n                \", vehicleId='\" + vehicleId + '\\'' +\r\n                \", rating=\" + rating +\r\n                \", comment='\" + comment + '\\'' +\r\n                \", reviewDate=\" + reviewDate +\r\n                '}';\r\n    }\r\n\r\n    @Override\r\n    public boolean equals(Object o) {\r\n        if (this == o) return true;\r\n        if (o == null || getClass() != o.getClass()) return false;\r\n        Review review = (Review) o;\r\n        return rating == review.rating &&\r\n                Objects.equals(id, review.id) &&\r\n                Objects.equals(userId, review.userId) &&\r\n                Objects.equals(vehicleId, review.vehicleId) &&\r\n                Objects.equals(comment, review.comment) &&\r\n                Objects.equals(reviewDate, review.reviewDate);\r\n    }\r\n\r\n    @Override\r\n    public int hashCode() {\r\n        return Objects.hash(id, userId, vehicleId, rating, comment, reviewDate);\r\n    }\r\n}
+===================================================================
+diff --git a/src/main/java/com/example/vehiclerentalservicewebapp/model/Review.java b/src/main/java/com/example/vehiclerentalservicewebapp/model/Review.java
+--- a/src/main/java/com/example/vehiclerentalservicewebapp/model/Review.java	(revision 0c2dda8bb6abf328b17efbefc3ae601a4f8efa2e)
++++ b/src/main/java/com/example/vehiclerentalservicewebapp/model/Review.java	(date 1747386168399)
+@@ -1,241 +1,0 @@
+-package com.example.vehiclerentalservicewebapp.model;
+-
+-import java.time.LocalDateTime;
+-import java.time.format.DateTimeFormatter;
+-import java.util.Objects;
+-
+-/**
+- * Review class represents a user review for a vehicle in the rental system.
+- * It stores information about the user who wrote the review, the vehicle being reviewed,
+- * the rating given, comments, and when the review was submitted.
+- */
+-public class Review {
+-    private String id;
+-    private String userId;
+-    private String vehicleId;
+-    private int rating;
+-    private String comment;
+-    private LocalDateTime reviewDate;
+-
+-    // Default constructor
+-    public Review() {
+-        this.reviewDate = LocalDateTime.now();
+-    }
+-
+-    /**
+-     * Constructor with all fields
+-     *
+-     * @param id Unique identifier for the review
+-     * @param userId ID of the user who submitted the review
+-     * @param vehicleId ID of the vehicle being reviewed
+-     * @param rating Rating given by the user (typically 1-5)
+-     * @param comment Text comment provided by the user
+-     * @param reviewDate Date and time when the review was submitted
+-     */
+-    public Review(String id, String userId, String vehicleId, int rating, String comment, LocalDateTime reviewDate) {
+-        this.id = id;
+-        this.userId = userId;
+-        this.vehicleId = vehicleId;
+-        this.rating = rating;
+-        this.comment = comment;
+-        this.reviewDate = reviewDate;
+-    }
+-
+-    /**
+-     * Constructor with essential fields, generates current timestamp for reviewDate
+-     *
+-     * @param id Unique identifier for the review
+-     * @param userId ID of the user who submitted the review
+-     * @param vehicleId ID of the vehicle being reviewed
+-     * @param rating Rating given by the user (typically 1-5)
+-     * @param comment Text comment provided by the user
+-     */
+-    public Review(String id, String userId, String vehicleId, int rating, String comment) {
+-        this(id, userId, vehicleId, rating, comment, LocalDateTime.now());
+-    }
+-
+-    // Getters and Setters
+-
+-    /**
+-     * Get the review's unique identifier
+-     *
+-     * @return The review ID
+-     */
+-    public String getId() {
+-        return id;
+-    }
+-
+-    /**
+-     * Set the review's unique identifier
+-     *
+-     * @param id The review ID to set
+-     */
+-    public void setId(String id) {
+-        this.id = id;
+-    }
+-
+-    /**
+-     * Get the ID of the user who submitted this review
+-     *
+-     * @return The user ID
+-     */
+-    public String getUserId() {
+-        return userId;
+-    }
+-
+-    /**
+-     * Set the ID of the user who submitted this review
+-     *
+-     * @param userId The user ID to set
+-     */
+-    public void setUserId(String userId) {
+-        this.userId = userId;
+-    }
+-
+-    /**
+-     * Get the ID of the vehicle being reviewed
+-     *
+-     * @return The vehicle ID
+-     */
+-    public String getVehicleId() {
+-        return vehicleId;
+-    }
+-
+-    /**
+-     * Set the ID of the vehicle being reviewed
+-     *
+-     * @param vehicleId The vehicle ID to set
+-     */
+-    public void setVehicleId(String vehicleId) {
+-        this.vehicleId = vehicleId;
+-    }
+-
+-    /**
+-     * Get the rating given by the user
+-     *
+-     * @return The rating value
+-     */
+-    public int getRating() {
+-        return rating;
+-    }
+-
+-    /**
+-     * Set the rating given by the user
+-     *
+-     * @param rating The rating value to set (typically 1-5)
+-     * @throws IllegalArgumentException if rating is less than 1 or greater than 5
+-     */
+-    public void setRating(int rating) {
+-        if (rating < 1 || rating > 5) {
+-            throw new IllegalArgumentException("Rating must be between 1 and 5");
+-        }
+-        this.rating = rating;
+-    }
+-
+-    /**
+-     * Get the comment provided by the user
+-     *
+-     * @return The comment text
+-     */
+-    public String getComment() {
+-        return comment;
+-    }
+-
+-    /**
+-     * Set the comment provided by the user
+-     *
+-     * @param comment The comment text to set
+-     */
+-    public void setComment(String comment) {
+-        this.comment = comment;
+-    }
+-
+-    /**
+-     * Get the date and time when the review was submitted
+-     *
+-     * @return The review date
+-     */
+-    public LocalDateTime getReviewDate() {
+-        return reviewDate;
+-    }
+-
+-    /**
+-     * Set the date and time when the review was submitted
+-     *
+-     * @param reviewDate The review date to set
+-     */
+-    public void setReviewDate(LocalDateTime reviewDate) {
+-        this.reviewDate = reviewDate;
+-    }
+-
+-    /**
+-     * Convert the review object to a string representation for storage in a text file
+-     * Uses pipe character as delimiter for easy parsing
+-     *
+-     * @return String representation of the review
+-     */
+-    public String toFileString() {
+-        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+-        return String.join("|",
+-                id,
+-                userId,
+-                vehicleId,
+-                String.valueOf(rating),
+-                comment,
+-                reviewDate.format(formatter)
+-        );
+-    }
+-
+-    /**
+-     * Create a Review object from a string representation (read from file)
+-     *
+-     * @param fileString The string representation of a review from the text file
+-     * @return A new Review object
+-     */
+-    public static Review fromFileString(String fileString) {
+-        String[] parts = fileString.split("\\|");
+-        if (parts.length < 6) {
+-            throw new IllegalArgumentException("Invalid review data format");
+-        }
+-
+-        Review review = new Review();
+-        review.setId(parts[0]);
+-        review.setUserId(parts[1]);
+-        review.setVehicleId(parts[2]);
+-        review.setRating(Integer.parseInt(parts[3]));
+-        review.setComment(parts[4]);
+-        review.setReviewDate(LocalDateTime.parse(parts[5], DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+-
+-        return review;
+-    }
+-
+-    @Override
+-    public String toString() {
+-        return "Review{" +
+-                "id='" + id + '\'' +
+-                ", userId='" + userId + '\'' +
+-                ", vehicleId='" + vehicleId + '\'' +
+-                ", rating=" + rating +
+-                ", comment='" + comment + '\'' +
+-                ", reviewDate=" + reviewDate +
+-                '}';
+-    }
+-
+-    @Override
+-    public boolean equals(Object o) {
+-        if (this == o) return true;
+-        if (o == null || getClass() != o.getClass()) return false;
+-        Review review = (Review) o;
+-        return rating == review.rating &&
+-                Objects.equals(id, review.id) &&
+-                Objects.equals(userId, review.userId) &&
+-                Objects.equals(vehicleId, review.vehicleId) &&
+-                Objects.equals(comment, review.comment) &&
+-                Objects.equals(reviewDate, review.reviewDate);
+-    }
+-
+-    @Override
+-    public int hashCode() {
+-        return Objects.hash(id, userId, vehicleId, rating, comment, reviewDate);
+-    }
+-}
+\ No newline at end of file
+Index: src/main/java/com/example/vehiclerentalservicewebapp/controller/admin/AdminLoginServlet.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.vehiclerentalservicewebapp.controller.admin;\r\n\r\npublic class AdminLoginServlet {\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/example/vehiclerentalservicewebapp/controller/admin/AdminLoginServlet.java b/src/main/java/com/example/vehiclerentalservicewebapp/controller/admin/AdminLoginServlet.java
+--- a/src/main/java/com/example/vehiclerentalservicewebapp/controller/admin/AdminLoginServlet.java	(revision 0c2dda8bb6abf328b17efbefc3ae601a4f8efa2e)
++++ b/src/main/java/com/example/vehiclerentalservicewebapp/controller/admin/AdminLoginServlet.java	(date 1747386168412)
+@@ -1,4 +1,0 @@
+-package com.example.vehiclerentalservicewebapp.controller.admin;
+-
+-public class AdminLoginServlet {
+-}
+Index: src/main/java/com/example/vehiclerentalservicewebapp/controller/user/RegisterServlet.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.vehiclerentalservicewebapp.controller.user;\r\n\r\npublic class RegisterServlet {\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/example/vehiclerentalservicewebapp/controller/user/RegisterServlet.java b/src/main/java/com/example/vehiclerentalservicewebapp/controller/user/RegisterServlet.java
+--- a/src/main/java/com/example/vehiclerentalservicewebapp/controller/user/RegisterServlet.java	(revision 0c2dda8bb6abf328b17efbefc3ae601a4f8efa2e)
++++ b/src/main/java/com/example/vehiclerentalservicewebapp/controller/user/RegisterServlet.java	(date 1747386168409)
+@@ -1,4 +1,0 @@
+-package com.example.vehiclerentalservicewebapp.controller.user;
+-
+-public class RegisterServlet {
+-}
+Index: src/main/java/com/example/vehiclerentalservicewebapp/controller/booking/CreateBookingServlet.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.vehiclerentalservicewebapp.controller.booking;\r\n\r\npublic class CreateBookingServlet {\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/example/vehiclerentalservicewebapp/controller/booking/CreateBookingServlet.java b/src/main/java/com/example/vehiclerentalservicewebapp/controller/booking/CreateBookingServlet.java
+--- a/src/main/java/com/example/vehiclerentalservicewebapp/controller/booking/CreateBookingServlet.java	(revision 0c2dda8bb6abf328b17efbefc3ae601a4f8efa2e)
++++ b/src/main/java/com/example/vehiclerentalservicewebapp/controller/booking/CreateBookingServlet.java	(date 1747386168416)
+@@ -1,4 +1,0 @@
+-package com.example.vehiclerentalservicewebapp.controller.booking;
+-
+-public class CreateBookingServlet {
+-}
+Index: src/main/java/com/example/vehiclerentalservicewebapp/dao/AdminDAO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.vehiclerentalservicewebapp.dao;\r\n\r\npublic class AdminDAO {\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/example/vehiclerentalservicewebapp/dao/AdminDAO.java b/src/main/java/com/example/vehiclerentalservicewebapp/dao/AdminDAO.java
+--- a/src/main/java/com/example/vehiclerentalservicewebapp/dao/AdminDAO.java	(revision 0c2dda8bb6abf328b17efbefc3ae601a4f8efa2e)
++++ b/src/main/java/com/example/vehiclerentalservicewebapp/dao/AdminDAO.java	(date 1747386168403)
+@@ -1,4 +1,0 @@
+-package com.example.vehiclerentalservicewebapp.dao;
+-
+-public class AdminDAO {
+-}
+Index: src/main/java/com/example/vehiclerentalservicewebapp/dao/ReviewDAO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.vehiclerentalservicewebapp.dao;\r\n\r\npublic class ReviewDAO {\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/example/vehiclerentalservicewebapp/dao/ReviewDAO.java b/src/main/java/com/example/vehiclerentalservicewebapp/dao/ReviewDAO.java
+--- a/src/main/java/com/example/vehiclerentalservicewebapp/dao/ReviewDAO.java	(revision 0c2dda8bb6abf328b17efbefc3ae601a4f8efa2e)
++++ b/src/main/java/com/example/vehiclerentalservicewebapp/dao/ReviewDAO.java	(date 1747386168396)
+@@ -1,4 +1,0 @@
+-package com.example.vehiclerentalservicewebapp.dao;
+-
+-public class ReviewDAO {
+-}
+Index: src/main/java/com/example/vehiclerentalservicewebapp/controller/review/AddReviewServlet.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.vehiclerentalservicewebapp.controller.review;\r\n\r\npublic class AddReviewServlet {\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/example/vehiclerentalservicewebapp/controller/review/AddReviewServlet.java b/src/main/java/com/example/vehiclerentalservicewebapp/controller/review/AddReviewServlet.java
+--- a/src/main/java/com/example/vehiclerentalservicewebapp/controller/review/AddReviewServlet.java	(revision 0c2dda8bb6abf328b17efbefc3ae601a4f8efa2e)
++++ b/src/main/java/com/example/vehiclerentalservicewebapp/controller/review/AddReviewServlet.java	(date 1747386168414)
+@@ -1,4 +1,0 @@
+-package com.example.vehiclerentalservicewebapp.controller.review;
+-
+-public class AddReviewServlet {
+-}
+Index: src/main/java/com/example/vehiclerentalservicewebapp/controller/vehicle/AddVehicleServlet.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.vehiclerentalservicewebapp.controller.vehicle;\r\n\r\npublic class AddVehicleServlet {\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/example/vehiclerentalservicewebapp/controller/vehicle/AddVehicleServlet.java b/src/main/java/com/example/vehiclerentalservicewebapp/controller/vehicle/AddVehicleServlet.java
+--- a/src/main/java/com/example/vehiclerentalservicewebapp/controller/vehicle/AddVehicleServlet.java	(revision 0c2dda8bb6abf328b17efbefc3ae601a4f8efa2e)
++++ b/src/main/java/com/example/vehiclerentalservicewebapp/controller/vehicle/AddVehicleServlet.java	(date 1747386168420)
+@@ -1,4 +1,0 @@
+-package com.example.vehiclerentalservicewebapp.controller.vehicle;
+-
+-public class AddVehicleServlet {
+-}
+Index: src/main/java/com/example/vehiclerentalservicewebapp/util/ValidationUtil.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.vehiclerentalservicewebapp.util;\r\n\r\npublic class ValidationUtil {\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/example/vehiclerentalservicewebapp/util/ValidationUtil.java b/src/main/java/com/example/vehiclerentalservicewebapp/util/ValidationUtil.java
+--- a/src/main/java/com/example/vehiclerentalservicewebapp/util/ValidationUtil.java	(revision 0c2dda8bb6abf328b17efbefc3ae601a4f8efa2e)
++++ b/src/main/java/com/example/vehiclerentalservicewebapp/util/ValidationUtil.java	(date 1747386168405)
+@@ -1,4 +1,0 @@
+-package com.example.vehiclerentalservicewebapp.util;
+-
+-public class ValidationUtil {
+-}
+Index: src/main/java/com/example/vehiclerentalservicewebapp/controller/payment/ProcessPaymentServlet.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.vehiclerentalservicewebapp.controller.payment;\r\n\r\npublic class ProcessPaymentServlet {\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/example/vehiclerentalservicewebapp/controller/payment/ProcessPaymentServlet.java b/src/main/java/com/example/vehiclerentalservicewebapp/controller/payment/ProcessPaymentServlet.java
+--- a/src/main/java/com/example/vehiclerentalservicewebapp/controller/payment/ProcessPaymentServlet.java	(revision 0c2dda8bb6abf328b17efbefc3ae601a4f8efa2e)
++++ b/src/main/java/com/example/vehiclerentalservicewebapp/controller/payment/ProcessPaymentServlet.java	(date 1747386168418)
+@@ -1,4 +1,0 @@
+-package com.example.vehiclerentalservicewebapp.controller.payment;
+-
+-public class ProcessPaymentServlet {
+-}
+Index: src/main/java/com/example/vehiclerentalservicewebapp/util/FileUtil.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.vehiclerentalservicewebapp.util;\r\n\r\npublic class FileUtil {\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/example/vehiclerentalservicewebapp/util/FileUtil.java b/src/main/java/com/example/vehiclerentalservicewebapp/util/FileUtil.java
+--- a/src/main/java/com/example/vehiclerentalservicewebapp/util/FileUtil.java	(revision 0c2dda8bb6abf328b17efbefc3ae601a4f8efa2e)
++++ b/src/main/java/com/example/vehiclerentalservicewebapp/util/FileUtil.java	(date 1747386168398)
+@@ -1,4 +1,0 @@
+-package com.example.vehiclerentalservicewebapp.util;
+-
+-public class FileUtil {
+-}
