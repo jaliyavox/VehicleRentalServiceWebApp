@@ -1,5 +1,7 @@
 com/rentalapp/model/Review.class
 com/rentalapp/model/User.class
+com/rentalapp/controller/admin/ViewPaymentServlet.class
+com/rentalapp/controller/admin/AdminPaymentsServlet.class
 com/rentalapp/controller/review/ViewReviewsServlet.class
 com/rentalapp/controller/admin/ManageUsersServlet.class
 com/rentalapp/controller/payment/RejectPaymentServlet.class
@@ -20,6 +22,7 @@ com/rentalapp/dao/BookingDAO.class
 com/rentalapp/controller/admin/ManageVehiclesServlet.class
 com/rentalapp/controller/review/DeleteReviewServlet.class
 com/rentalapp/controller/vehicle/GetVehicleServlet.class
+com/rentalapp/controller/admin/ProcessPaymentApprovalServlet.class
 com/rentalapp/dao/UserDAO.class
 com/rentalapp/dao/PaymentDAO.class
 com/rentalapp/controller/vehicle/UpdateVehicleServlet.class
